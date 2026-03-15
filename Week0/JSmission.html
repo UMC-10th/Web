@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JS MISSION</title>
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  background-color: rgb(209, 222, 228);
+  color: black;
+}
+
+.todo-app{
+  width:900px;
+  max-width:calc(100% - 40px);
+  margin:30px auto;
+  padding:80px 70px 90px;
+  background-color: rgb(209, 222, 228);
+  border-top:2px solid gray;
+}
+
+.todo-app__header{
+  text-align:center;
+  margin-bottom:70px;
+}
+
+.todo-app__title{
+  font-size:34px;
+  font-weight:700;
+  margin-bottom:40px;
+}
+
+.todo-app__divider{
+  width:100%;
+  border:none;
+  border-top:2px solid lightgray;
+  margin-bottom:20px;
+}
+
+.todo-app__input{
+  display:block;
+  width:80%;
+  margin:0 auto;
+  padding:14px 18px;
+  border:2px solid gray;
+  background-color:white;
+  font-size:16px;
+  outline:none;
+}
+
+.todo-app__input::placeholder{
+  color:darkgray;
+  font-style:italic;
+}
+
+.todo-app__content{
+  display:flex;
+  justify-content:space-between;
+  gap:80px;
+  margin-top:20px;
+}
+
+.todo-app__section{
+  flex:1;
+}
+
+.todo-app__section-title{
+  width:fit-content;
+  margin:0 auto 30px;
+  padding-bottom:8px;
+  border-bottom:2px solid lightgray;
+  font-size:18px;
+  font-weight:700;
+}
+
+.todo-app__list{
+  list-style:none;
+  min-height:200px;
+}
+
+.todo-app__item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:14px 0;
+  border-bottom:2px solid lightgray;
+}
+
+.todo-app__text{
+  font-size:16px;
+  font-weight:700;
+  word-break:break-word;
+}
+
+.todo-app__item--done .todo-app__text{
+  color:dimgray;
+}
+
+.todo-app__actions{
+  display:flex;
+  gap:8px;
+  flex-shrink:0;
+}
+
+.todo-app__button{
+  padding:6px 10px;
+  border:none;
+  background-color:lightgray;
+  color:black;
+  font-size:12px;
+  cursor:pointer;
+}
+
+.todo-app__button:hover{
+  background-color:silver;
+}
+
+.todo-app__button--delete{
+  background-color:whitesmoke;
+}
+
+.todo-app__button--delete:hover{
+  background-color:lightgray;
+}
+
+@media (max-width:768px){
+
+  .todo-app{
+    padding:50px 24px 60px;
+  }
+
+  .todo-app__title{
+    font-size:28px;
+  }
+
+  .todo-app__input{
+    width:100%;
+  }
+
+  .todo-app__content{
+    flex-direction:column;
+    gap:40px;
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<main class="todo-app">
+
+<header class="todo-app__header">
+<h1 class="todo-app__title">UMC Study Plan</h1>
+<hr class="todo-app__divider">
+
+<input
+type="text"
+id="todoInput"
+class="todo-app__input"
+placeholder="스터디 계획을 작성해보세요!"
+>
+
+</header>
+
+<div class="todo-app__content">
+
+<section class="todo-app__section">
+<h2 class="todo-app__section-title">해야 할 일</h2>
+<ul id="todoList" class="todo-app__list"></ul>
+</section>
+
+<section class="todo-app__section">
+<h2 class="todo-app__section-title">해낸 일</h2>
+<ul id="doneList" class="todo-app__list"></ul>
+</section>
+
+</div>
+
+</main>
+
+<script>
+
+const todoInput = document.getElementById("todoInput")
+const todoList = document.getElementById("todoList")
+const doneList = document.getElementById("doneList")
+
+function createButton(text,className){
+  const button=document.createElement("button")
+  button.textContent=text
+  button.className=className
+  return button
+}
+
+function deleteTodo(item){
+  item.remove()
+}
+
+function completeTodo(item){
+
+  item.classList.add("todo-app__item--done")
+
+  const actions=item.querySelector(".todo-app__actions")
+  actions.innerHTML=""
+
+  const deleteButton=createButton(
+    "삭제",
+    "todo-app__button todo-app__button--delete"
+  )
+  deleteButton.addEventListener("click",function(){
+    deleteTodo(item)
+  })
+  actions.appendChild(deleteButton)
+
+  doneList.appendChild(item)
+}
+
+function addTodo(){
+
+  const value=todoInput.value.trim()
+
+  if(value===""){
+    return
+  }
+
+  const item=document.createElement("li")
+  item.className="todo-app__item"
+
+  const text=document.createElement("span")
+  text.className="todo-app__text"
+  text.textContent=value
+
+  const actions=document.createElement("div")
+  actions.className="todo-app__actions"
+
+  const completeButton=createButton(
+    "완료",
+    "todo-app__button"
+  )
+
+  completeButton.addEventListener("click",function(){
+    completeTodo(item)
+  })
+
+  actions.appendChild(completeButton)
+
+  item.appendChild(text)
+  item.appendChild(actions)
+
+  todoList.appendChild(item)
+
+  todoInput.value=""
+  todoInput.focus()
+
+}
+
+todoInput.addEventListener("keydown",function(e){
+
+  if(e.key==="Enter" && !e.isComposing){
+    e.preventDefault()
+    addTodo()
+  }
+
+})
+
+</script>
+
+</body>
+</html>
