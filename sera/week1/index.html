@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- style.css 연결 -->
+    <link rel="stylesheet" href="style.css" />
+    <!-- TypeScript를 컴파일한 JS 파일 연결 (defer: HTML 파싱 후 실행) -->
+    <script type="module" src="./dist/script.js" defer></script>
+    <title>UMC TODO</title>
+  </head>
+  <body>
+    <!-- 전체 카드 컨테이너 -->
+    <div class="todo-container">
+      <!-- 제목 -->
+      <h1 class="todo-container__header">SERA TODO</h1>
+
+      <!-- 입력 폼: 제출 시 script.ts의 submit 이벤트 실행 -->
+      <form id="todo-form" class="todo-container__form">
+        <input
+          type="text"
+          id="todo-input"
+          class="todo-container__input"
+          placeholder="할 일을 입력해주세요."
+          required
+        />
+        <button type="submit" class="todo-container__button">할일추가</button>
+      </form>
+
+      <!-- 할 일 / 완료 목록 영역 -->
+      <div class="render-container">
+        <!-- 할 일 섹션: JS에서 todo-list에 li 추가 -->
+        <div class="render-container__section">
+          <h2 class="render-container__title">할 일</h2>
+          <ul id="todo-list" class="render-container__list"></ul>
+        </div>
+
+        <!-- 완료 섹션: JS에서 completed-list에 li 추가 -->
+        <div class="render-container__section">
+          <h2 class="render-container__title">완료</h2>
+          <ul id="completed-list" class="render-container__list"></ul>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
