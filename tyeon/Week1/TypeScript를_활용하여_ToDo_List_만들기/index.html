@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- CSS 업로드 -->
+    <link rel="stylesheet" href="./style.css">
+    <!-- JS 업로드; defer: 페이지 로드 후 실행 -->
+    <script src="./dist/script.js" defer ></script>
+    <title>UMC TODO</title>
+</head>
+<body>
+    <div class="todo-container">
+        <h1 class="todo-container__title">TYEON TODO</h1>
+        <form class="todo-container__form" id="todo-form">
+            <input  id="todo-input"
+                    class="todo-container__input" 
+                    type="text" 
+                    placeholder="할 일 입력..." />
+            <button class="todo-container__button" id="add-button">할 일 추가</button>
+        </form>
+        <div class="render-container">
+            <div class="render-container__list">
+                <h2 class="render-container__subtitle">할 일</h2>
+                <ul class="render-container__works" id="notyet-works">
+                </ul>
+            </div>
+            <div class="render-container__list">
+                <h2 class="render-container__subtitle">완료</h2>
+                <ul class="render-container__works" id="done-works">
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
