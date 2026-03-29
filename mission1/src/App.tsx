@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './App.css'
+import { useTheme } from './ContextPage'
 
 type Task = {
   id: number;
@@ -7,6 +8,7 @@ type Task = {
 };
 
 function App() {
+  const { isDarkMode, toggleTheme } = useTheme();
   const [todos, setTodos] = useState<Task[]>([]);
   const [doneTasks, setDoneTasks] = useState<Task[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -30,7 +32,11 @@ function App() {
   };
 
   return (
-      <div className="todo-container">
+    <div className={`min-h-screen w-full flex flex-col items-center py-10 transition-colors duration-500 ${isDarkMode ? 'dark bg-zinc-900 text-white' : 'bg-slate-50 text-slate-900'}`}>
+      <button onClick={toggleTheme} className="mb-8 px-4 py-2 rounded-lg bg-amber-400 dark:bg-indigo-600 text-white font-bold shadow-md">
+        {isDarkMode ? '라이트 모드' : '다크 모드'}
+      </button>
+      <div className={`todo-container ${isDarkMode ? 'dark-mode-card' : ''}`}>
         <h1 className="todo-container__header">CORN TODO</h1>
         <form className="todo-container__form" onSubmit={handleSubmit}>
           <input
@@ -75,6 +81,7 @@ function App() {
           </div>
         </div>
       </div>
+    </div>
   )
 }
 

@@ -1,4 +1,3 @@
-/* ===== 기본 스타일 ===== */
 body {
   font-family: Arial, sans-serif;
   display: flex;
@@ -9,7 +8,6 @@ body {
   margin: 0;
 }
 
-/* ===== Todo 컨테이너 ===== */
 .todo-container {
   background: white;
   padding: 20px;
@@ -19,13 +17,11 @@ body {
   text-align: center;
 }
 
-/* ===== 제목 ===== */
 .todo-container__header {
   font-size: 24px;
   margin-bottom: 16px;
 }
 
-/* ===== 입력 폼 ===== */
 .todo-container__form {
   display: flex;
   gap: 10px;
@@ -54,14 +50,12 @@ body {
   background-color: #218838;
 }
 
-/* ===== 리스트 컨테이너 ===== */
 .render-container {
   display: flex;
   justify-content: space-between;
   gap: 20px;
 }
 
-/* ===== 리스트 ===== */
 .render-container__section {
   width: 100%;
   text-align: left;
@@ -82,7 +76,6 @@ body {
   margin: 0;
 }
 
-/* ===== 리스트 아이템 ===== */
 .render-container__item {
   display: flex;
   justify-content: space-between;
@@ -118,4 +111,21 @@ body {
 
 .render-container__item-button:hover {
   background-color: #c82333;
+}
+
+/* App.css 맨 밑에 추가 */
+.dark-mode-card {
+  background-color: #27272a !important; /* 어두운 회색 */
+  color: white !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.dark .render-container__item {
+  background: #3f3f46 !important;
+  border-bottom: 1px solid #52525b;
+  color: white;
+}
+
+.dark .render-container__title {
+  color: #e4e4e7;
 }
