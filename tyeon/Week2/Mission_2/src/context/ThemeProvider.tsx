@@ -1,0 +1,37 @@
+import { createContext, type PropsWithChildren, useState, useContext } from "react";
+
+export enum THEME {
+    LIGHT = 'LIGHT',
+    DARK = 'DARK',
+}
+
+type TTheme = THEME.LIGHT | THEME.DARK;
+
+interface IThemeContext {
+    theme: TTheme;
+    toggleTheme: () => void;
+}
+
+export const ThemeContext = createContext<IThemeContext | undefined>(undefined);
+
+export const ThemeProvider = ({children}: PropsWithChildren) => {
+    const [theme, setTheme] = useState<TTheme>(THEME.LIGHT);
+    const toggleTheme = () => {
+        setTheme(prev => prev === THEME.LIGHT ? THEME.DARK : THEME.LIGHT);
+    }
+
+    return (
+        <ThemeContext.Provider value={{ theme, toggleTheme }}>
+            {children}
+        </ThemeContext.Provider>
+    )
+}
+
+export const useTheme = () => {
+    const context = useContext(ThemeContext);
+    if (!context) {
+        throw new Error("ThemeContext를 사용할 수 없습니다. ThemeProvider로 감싸주세요.");
+    }
+
+    return context;
+}
