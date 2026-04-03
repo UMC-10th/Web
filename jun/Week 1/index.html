@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>UMC Todo List</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Jun Todo</h1>
+        
+        <div class="input-section">
+            <input type="text" id="todoInput" placeholder="할 일 입력">
+            <button id="addBtn">할 일 추가</button>
+        </div>
+
+        <div class="list-container">
+            <section class="todo-list">
+                <h2>할 일 </h2>
+                <ul id="todoItems"></ul>
+            </section>
+
+            <section class="done-list">
+                <h2>완료 </h2>
+                <ul id="doneItems"></ul>
+            </section>
+        </div>
+    </div>
+    <script defer src="./dist/script.js"></script>
+</body>
+</html>
