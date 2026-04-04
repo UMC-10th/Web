@@ -54,6 +54,14 @@ export default function EachMoviePage() {
 
     }, [movieId]); // movieId가 바뀔때 마다 업데이트를 해야하기 때문에 의존성 배열에 추가함
 
+    if(isError) { // error 발생 시
+        return (
+        <div className="flex justify-center items-center text-2xl text-red-400">
+            <span>Error 발생!</span>
+        </div>
+        );
+    }
+
     return (
         <>
             {isPending && 
