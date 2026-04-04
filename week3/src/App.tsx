@@ -1,36 +1,33 @@
 import './App.css';
-import { Link } from './components/Link';
-import { Route } from './components/Route';
-import { Routes } from './components/Router';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import MoviesPage from './pages/movies';
 
-const MatthewPage = () => <h1>매튜 페이지</h1>;
-const AeongPage = () => <h1>애옹 페이지</h1>;
-const JoyPage = () => <h1>조이 페이지</h1>;
-const NotFoundPage = () => <h1>404</h1>;
+import HomePage from './pages/home';
+import NotFound from './pages/not-found';
+import Movies from './pages/movies';
+import RootLayout from './layout/root-layout';
 
-const Header = () => {
-  return (
-    <nav style={{ display: 'flex', gap: '10px' }}>
-      <Link to='/matthew'>MATTHEW</Link>
-      <Link to='/aeong'>AEONG</Link>
-      <Link to='/joy'>JOY</Link>
-      <Link to='/not-found'>NOT FOUND</Link>
-    </nav>
-  );
-};
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <RootLayout />,
+    errorElement: <NotFound />,
+    children: [
+      {
+        index: true,
+        element: <HomePage />,
+      },
+      {
+        // /movies/뒤에 오는 값을 movieId라는 이름으로 받겠다는 뜻
+        path: 'movies',
+        element: <MoviesPage />,
+      },
+    ],
+  },
+]);
 
 function App() {
-  return (
-    <>
-      <Header />
-      <Routes>
-        <Route path='/matthew' component={MatthewPage} />
-        <Route path='/aeong' component={AeongPage} />
-        <Route path='/joy' component={JoyPage} />
-        <Route path='/not-found' component={NotFoundPage} />
-      </Routes>
-    </>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
