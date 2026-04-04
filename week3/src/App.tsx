@@ -1,30 +1,41 @@
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import MoviePage from "./pages/MoviePage";
+import HomePage from "./pages/HomePage";
+import NotFoundPage from "./pages/NotFoundPage";
+import MovieDetailPage from "./pages/MovieDetailPage";
 import './App.css';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import MoviesPage from './pages/movies';
-
-import HomePage from './pages/home';
-import NotFound from './pages/not-found';
-import Movies from './pages/movies';
-import RootLayout from './layout/root-layout';
 
 const router = createBrowserRouter([
   {
-    path: '/',
-    element: <RootLayout />,
-    errorElement: <NotFound />,
+    path: "/",
+    element: <HomePage />,
+    errorElement: <NotFoundPage />,
     children: [
       {
         index: true,
-        element: <HomePage />,
+        element: <MoviePage />,
       },
       {
-        // /movies/뒤에 오는 값을 movieId라는 이름으로 받겠다는 뜻
-        path: 'movies',
-        element: <MoviesPage />,
+        path: 'movies/:category',
+        element: <MoviePage />,
       },
-    ],
+      {
+        path: 'movie/:movieId',
+        element: <MovieDetailPage />,
+      }
+    ]
   },
+
 ]);
+
+//movies/upcoming
+//movies/popular
+//movies/now_playing
+//movies/top/rated
+//movies?category=upcoming
+//movies?category=popular
+//movies/123
+//movie/category/{movie_id}
 
 function App() {
   return <RouterProvider router={router} />;
