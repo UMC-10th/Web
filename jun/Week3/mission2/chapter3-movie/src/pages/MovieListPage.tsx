@@ -13,7 +13,7 @@ type Props = {
   category: string; // 'popular' | 'upcoming' | 'top_rated' | 'now_playing'
 };
 
-const API_KEY = '199308621bd95ded352502e9d716d697';
+const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 const MovieListPage = ({ category }: Props) => {
   const [movies, setMovies] = useState<Movie[]>([]);
