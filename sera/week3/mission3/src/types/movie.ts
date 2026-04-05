@@ -1,0 +1,36 @@
+// 영화 목록 아이템 타입
+export interface Movie {
+  id: number;
+  title: string;
+  overview: string;
+  poster_path: string;
+  vote_average: number;
+  release_date: string;
+}
+
+// 영화 상세 정보 타입
+export interface MovieDetail extends Movie {
+  genres: { id: number; name: string }[];
+  runtime: number;
+  tagline: string;
+}
+
+// 출연진/제작진 타입
+export interface Cast {
+  id: number;
+  name: string;
+  character: string;
+  profile_path: string | null;
+}
+
+export interface Crew {
+  id: number;
+  name: string;
+  job: string;
+  profile_path: string | null;
+}
+
+export interface Credits {
+  cast: Cast[];
+  crew: Crew[];
+}
