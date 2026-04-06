@@ -2,6 +2,9 @@ node_modules/
 dist/
 .DS_Store
 
+node_modules/
+dist/
+.env
 
 # Logs
 logs
