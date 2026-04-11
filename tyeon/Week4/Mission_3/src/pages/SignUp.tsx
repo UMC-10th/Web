@@ -7,7 +7,7 @@ import googleLogo from "../imgs/google.png";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, ChevronLeft, Camera } from "lucide-react";
 
-// 1. Schema 정의 (name을 닉네임 규칙으로 설정)
+// Schema 정의
 const schema = z.object({
     email: z.string().email({ message: "올바른 이메일 형식이 아닙니다!" }),
     password: z
@@ -15,7 +15,7 @@ const schema = z.object({
         .min(8, { message: "비밀번호는 8자 이상이어야 합니다!" })
         .max(20, { message: "비밀번호는 20자 이하여야 합니다!" }),
     passwordCheck: z.string(),
-    name: z // 이 필드를 닉네임으로 사용
+    name: z
         .string()
         .min(2, { message: "닉네임은 2자 이상이어야 합니다." })
         .max(10, { message: "닉네임은 10자 이하로 설정해주세요." })
@@ -106,13 +106,13 @@ export default function SignUp() {
                 {step === 2 && (
                     <div className="flex flex-col gap-4 animate-fadeIn">
                         <div className="mb-4">
-                            <p className="text-gray-500 text-sm">계정 주소</p>
+                            <p className="text-gray-500 text-sm">이메일</p>
                             <p className="font-semibold text-lg">{emailValue}</p>
                         </div>
                         <div className="relative">
                             <input {...register("password")} type={showPw ? "text" : "password"} className="border border-[#ccccccc8] rounded-sm w-full p-[12px] focus:border-[#0879ea] outline-none" placeholder="비밀번호 (8자 이상)" />
                             <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-[14px] text-gray-400">
-                                {showPw ? <EyeOff size={20} /> : <Eye size={20} />}
+                                {showPw ? <Eye size={20} /> : <EyeOff size={20}/>}
                             </button>
                         </div>
                         {errors.password && <p className="text-red-400 text-sm font-bold">{errors.password.message}</p>}
@@ -120,7 +120,7 @@ export default function SignUp() {
                         <div className="relative">
                             <input {...register("passwordCheck")} type={showPwCheck ? "text" : "password"} className="border border-[#ccccccc8] rounded-sm w-full p-[12px] focus:border-[#0879ea] outline-none" placeholder="비밀번호 재확인" />
                             <button type="button" onClick={() => setShowPwCheck(!showPwCheck)} className="absolute right-3 top-[14px] text-gray-400">
-                                {showPwCheck ? <EyeOff size={20} /> : <Eye size={20} />}
+                                {showPwCheck ? <Eye size={20} /> : <EyeOff size={20}/>}
                             </button>
                         </div>
                         {errors.passwordCheck && <p className="text-red-400 text-sm font-bold">{errors.passwordCheck.message}</p>}
