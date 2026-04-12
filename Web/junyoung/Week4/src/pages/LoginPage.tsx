@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
 import { loginSchema, type LoginFormData } from '../schemas/loginSchema';
+import useLocalStorage from '../hooks/useLocalStorage';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -15,6 +16,9 @@ const LoginPage = () => {
     mode: 'onChange',
   });
 
+  const [, setAccessToken] = useLocalStorage<string>('accessToken', '');
+  const [, setRefreshToken] = useLocalStorage<string>('refreshToken', '');
+
   const onSubmit = async (data: LoginFormData) => {
     try {
       const { data: res } = await axios.post(
@@ -22,8 +26,8 @@ const LoginPage = () => {
         { email: data.email, password: data.password }
       );
       const { accessToken, refreshToken } = res.data;
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+      setAccessToken(accessToken);
+      setRefreshToken(refreshToken);
       navigate('/');
     } catch {
       alert('이메일 또는 비밀번호가 올바르지 않습니다.');
