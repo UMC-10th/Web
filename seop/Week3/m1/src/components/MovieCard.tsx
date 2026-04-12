@@ -1,0 +1,27 @@
+import type { Movie } from '../types/movie';
+
+interface MovieCardProps {
+  movie: Movie;
+}
+
+export default function MovieCard({ movie }: MovieCardProps) {
+  return (
+    <div className="relative group cursor-pointer rounded-lg overflow-hidden aspect-[2/3]">
+      {/* 포스터 이미지 */}
+      <img
+        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+        alt={movie.title}
+        className="w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:brightness-50"
+      />
+      {/* 호버 시 제목 + 줄거리 */}
+      <div className="absolute inset-0 flex flex-col justify-center items-center p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <h2 className="text-white text-sm font-bold text-center mb-2">
+          {movie.title}
+        </h2>
+        <p className="text-gray-300 text-xs text-center line-clamp-4">
+          {movie.overview || '줄거리 정보가 없습니다.'}
+        </p>
+      </div>
+    </div>
+  );
+}
