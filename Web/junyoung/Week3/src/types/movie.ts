@@ -33,6 +33,14 @@ export type Cast = {
   profile_path: string | null;
 };
 
+export type Crew = {
+  id: number;
+  name: string;
+  job: string;
+  profile_path: string | null;
+};
+
 export type Credits = {
   cast: Cast[];
+  crew: Crew[];
 };
