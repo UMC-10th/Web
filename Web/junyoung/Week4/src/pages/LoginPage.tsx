@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import useForm from '../hooks/useForm';
+import useLocalStorage from '../hooks/useLocalStorage';
 
 interface LoginForm {
   email: string;
@@ -26,6 +27,9 @@ const LoginPage = () => {
   const { values, errors, touched, handleChange, handleBlur, isValid } =
     useForm<LoginForm>({ email: '', password: '' }, validate);
 
+  const [, setAccessToken] = useLocalStorage<string>('accessToken', '');
+  const [, setRefreshToken] = useLocalStorage<string>('refreshToken', '');
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -34,8 +38,8 @@ const LoginPage = () => {
         { email: values.email, password: values.password }
       );
       const { accessToken, refreshToken } = data.data;
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+      setAccessToken(accessToken);
+      setRefreshToken(refreshToken);
       navigate('/');
     } catch {
       alert('이메일 또는 비밀번호가 올바르지 않습니다.');
