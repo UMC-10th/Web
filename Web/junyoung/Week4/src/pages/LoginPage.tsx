@@ -1,39 +1,27 @@
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
-import useForm from '../hooks/useForm';
-
-interface LoginForm {
-  email: string;
-  password: string;
-}
-
-const validate = (values: LoginForm) => {
-  const errors: Partial<Record<keyof LoginForm, string>> = {};
-
-  if (values.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
-    errors.email = '올바른 이메일 형식을 입력해주세요.';
-  }
-
-  if (values.password && values.password.length < 6) {
-    errors.password = '비밀번호는 8자 이상이어야 합니다.';
-  }
-
-  return errors;
-};
+import { loginSchema, type LoginFormData } from '../schemas/loginSchema';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { values, errors, touched, handleChange, handleBlur, isValid } =
-    useForm<LoginForm>({ email: '', password: '' }, validate);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    mode: 'onChange',
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      const { data } = await axios.post(
+      const { data: res } = await axios.post(
         'http://localhost:8000/v1/auth/signin',
-        { email: values.email, password: values.password }
+        { email: data.email, password: data.password }
       );
-      const { accessToken, refreshToken } = data.data;
+      const { accessToken, refreshToken } = res.data;
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       navigate('/');
@@ -56,9 +44,13 @@ const LoginPage = () => {
           <h1 className="text-white text-lg font-bold">로그인</h1>
         </div>
 
-        <div className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           {/* 구글 로그인 버튼 */}
-          <button className="w-full relative flex items-center border border-gray-600 bg-transparent text-white font-medium text-sm px-4 rounded-md hover:border-gray-400 transition-colors" style={{ height: '40px' }}>
+          <button
+            type="button"
+            className="w-full relative flex items-center border border-gray-600 bg-transparent text-white font-medium text-sm px-4 rounded-md hover:border-gray-400 transition-colors"
+            style={{ height: '40px' }}
+          >
             <svg className="w-5 h-5 shrink-0" viewBox="0 0 48 48">
               <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
               <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
@@ -79,48 +71,41 @@ const LoginPage = () => {
           {/* 이메일 */}
           <div className="flex flex-col gap-1">
             <input
+              {...register('email')}
               type="email"
-              name="email"
-              value={values.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
               placeholder="이메일을 입력해주세요!"
               className="bg-transparent border border-gray-600 text-white text-sm px-4 rounded-md outline-none placeholder-gray-500 focus:border-pink-500 transition-colors"
               style={{ height: '40px' }}
             />
-            {touched.email && errors.email && (
-              <p className="text-pink-500 text-xs px-1">{errors.email}</p>
+            {errors.email && (
+              <p className="text-pink-500 text-xs px-1">{errors.email.message}</p>
             )}
           </div>
 
           {/* 비밀번호 */}
           <div className="flex flex-col gap-1">
             <input
+              {...register('password')}
               type="password"
-              name="password"
-              value={values.password}
-              onChange={handleChange}
-              onBlur={handleBlur}
               placeholder="비밀번호를 입력해주세요!"
               className="bg-transparent border border-gray-600 text-white text-sm px-4 rounded-md outline-none placeholder-gray-500 focus:border-pink-500 transition-colors"
               style={{ height: '40px' }}
             />
-            {touched.password && errors.password && (
-              <p className="text-pink-500 text-xs px-1">{errors.password}</p>
+            {errors.password && (
+              <p className="text-pink-500 text-xs px-1">{errors.password.message}</p>
             )}
           </div>
 
           {/* 로그인 버튼 */}
           <button
             type="submit"
-            onClick={handleSubmit}
             disabled={!isValid}
             className="rounded-md text-sm font-bold text-white bg-pink-500 hover:bg-pink-600 disabled:bg-[#2a2a2a] disabled:text-gray-600 disabled:cursor-not-allowed transition-colors"
             style={{ height: '40px' }}
           >
             로그인
           </button>
-        </div>
+        </form>
       </div>
     </div>
   );
