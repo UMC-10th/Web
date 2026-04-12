@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
 import { Movie, MovieResponse } from '../types/movie';
+import useCustomFetch from '../hooks/useCustomFetch';
 
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
-const TOKEN = import.meta.env.VITE_TMDB_TOKEN;
 
 const CATEGORY_LABELS: Record<string, string> = {
   popular: '인기 영화',
@@ -22,38 +21,18 @@ const CATEGORY_TO_ENDPOINT: Record<string, string> = {
 
 const MoviesPage = () => {
   const { category = 'popular' } = useParams<{ category: string }>();
-
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     setPage(1);
   }, [category]);
 
-  useEffect(() => {
-    const fetchMovies = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const endpoint = CATEGORY_TO_ENDPOINT[category] ?? 'popular';
-        const { data } = await axios.get<MovieResponse>(
-          `https://api.themoviedb.org/3/movie/${endpoint}?language=ko-KR&page=${page}`,
-          { headers: { Authorization: `Bearer ${TOKEN}` } }
-        );
-        setMovies(data.results);
-        setTotalPages(data.total_pages);
-      } catch {
-        setError('영화 데이터를 불러오는 데 실패했습니다.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const endpoint = CATEGORY_TO_ENDPOINT[category] ?? 'popular';
+  const url = `https://api.themoviedb.org/3/movie/${endpoint}?language=ko-KR&page=${page}`;
+  const { data, isLoading, error } = useCustomFetch<MovieResponse>(url);
 
-    fetchMovies();
-  }, [category, page]);
+  const movies: Movie[] = data?.results ?? [];
+  const totalPages = data?.total_pages ?? 1;
 
   if (isLoading) {
     return (

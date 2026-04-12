@@ -1,50 +1,26 @@
-import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { MovieDetail, Credits } from '../types/movie';
+import useCustomFetch from '../hooks/useCustomFetch';
 
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 const BACKDROP_BASE_URL = 'https://image.tmdb.org/t/p/original';
-const TOKEN = import.meta.env.VITE_TMDB_TOKEN;
 
 const MovieDetailPage = () => {
   const { movieId } = useParams<{ movieId: string }>();
   const navigate = useNavigate();
 
-  const [movie, setMovie] = useState<MovieDetail | null>(null);
-  const [credits, setCredits] = useState<Credits | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { data: movie, isLoading: isLoadingDetail, error: errorDetail } =
+    useCustomFetch<MovieDetail>(
+      `https://api.themoviedb.org/3/movie/${movieId}?language=ko-KR`
+    );
 
-  useEffect(() => {
-    const fetchDetail = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const headers = { Authorization: `Bearer ${TOKEN}` };
+  const { data: credits, isLoading: isLoadingCredits, error: errorCredits } =
+    useCustomFetch<Credits>(
+      `https://api.themoviedb.org/3/movie/${movieId}/credits?language=ko-KR`
+    );
 
-        const [detailRes, creditsRes] = await Promise.all([
-          axios.get<MovieDetail>(
-            `https://api.themoviedb.org/3/movie/${movieId}?language=ko-KR`,
-            { headers }
-          ),
-          axios.get<Credits>(
-            `https://api.themoviedb.org/3/movie/${movieId}/credits?language=ko-KR`,
-            { headers }
-          ),
-        ]);
-
-        setMovie(detailRes.data);
-        setCredits(creditsRes.data);
-      } catch {
-        setError('영화 정보를 불러오는 데 실패했습니다.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchDetail();
-  }, [movieId]);
+  const isLoading = isLoadingDetail || isLoadingCredits;
+  const error = errorDetail || errorCredits;
 
   if (isLoading) {
     return (
