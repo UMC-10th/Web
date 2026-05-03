@@ -1,6 +1,22 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import axiosInstance from '../api/axiosInstance';
 
 const PremiumWebtoonPage = () => {
+  const [authMessage, setAuthMessage] = useState('회원 인증 정보를 확인하고 있습니다.');
+
+  useEffect(() => {
+    axiosInstance
+      .get('/auth/protected')
+      .then((response) => {
+        const message = response.data?.data ?? '회원 인증이 완료되었습니다.';
+        setAuthMessage(String(message));
+      })
+      .catch(() => {
+        setAuthMessage('인증 확인에 실패했습니다. 다시 로그인해 주세요.');
+      });
+  }, []);
+
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-10 text-white">
       <section className="grid gap-8 md:grid-cols-[360px_1fr] md:items-center">
@@ -15,6 +31,9 @@ const PremiumWebtoonPage = () => {
           <p className="max-w-2xl leading-7 text-gray-400">
             깊은 밤에 어울리는 재즈, 소울, 시티팝 트랙을 모은 회원 전용
             플레이리스트입니다.
+          </p>
+          <p className="w-fit rounded-md border border-pink-500/30 bg-pink-500/10 px-3 py-2 text-sm text-pink-100">
+            {authMessage}
           </p>
           <button className="w-fit rounded-md bg-pink-500 px-5 py-2 text-sm font-bold transition-colors hover:bg-pink-600">
             재생하기
