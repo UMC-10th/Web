@@ -12,6 +12,8 @@ import {
   type NicknameFormData,
 } from '../schemas/signupSchema';
 
+const GOOGLE_LOGIN_URL = 'http://localhost:8000/v1/auth/google/login';
+
 // ─── Step 1: 이메일 ───────────────────────────────────────────
 const EmailStep = ({
   onNext,
@@ -27,11 +29,16 @@ const EmailStep = ({
     mode: 'onChange',
   });
 
+  const handleGoogleLogin = () => {
+    window.location.href = GOOGLE_LOGIN_URL;
+  };
+
   return (
     <form onSubmit={handleSubmit((data) => onNext(data.email))} className="flex flex-col gap-4">
       {/* 구글 로그인 버튼 */}
       <button
         type="button"
+        onClick={handleGoogleLogin}
         className="w-full relative flex items-center border border-gray-600 bg-transparent text-white font-medium text-sm px-4 rounded-md hover:border-gray-400 transition-colors"
         style={{ height: '40px' }}
       >

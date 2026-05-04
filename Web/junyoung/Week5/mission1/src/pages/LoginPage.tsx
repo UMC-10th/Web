@@ -5,6 +5,8 @@ import axios from 'axios';
 import { loginSchema, type LoginFormData } from '../schemas/loginSchema';
 import { setAuthTokens } from '../utils/auth';
 
+const GOOGLE_LOGIN_URL = 'http://localhost:8000/v1/auth/google/login';
+
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,6 +34,10 @@ const LoginPage = () => {
     }
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href = GOOGLE_LOGIN_URL;
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-65px)] px-4 -mt-16">
       <div className="w-full max-w-xs flex flex-col gap-6">
@@ -56,6 +62,7 @@ const LoginPage = () => {
           {/* 구글 로그인 버튼 */}
           <button
             type="button"
+            onClick={handleGoogleLogin}
             className="w-full relative flex items-center border border-gray-600 bg-transparent text-white font-medium text-sm px-4 rounded-md hover:border-gray-400 transition-colors"
             style={{ height: '40px' }}
           >

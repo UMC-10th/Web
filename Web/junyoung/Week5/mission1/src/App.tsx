@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import RootLayout from './layout/RootLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
+import GoogleCallbackPage from './pages/GoogleCallbackPage';
 import LoginPage from './pages/LoginPage';
 import NotFoundPage from './pages/NotFoundPage';
 import PremiumWebtoonPage from './pages/PremiumWebtoonPage';
@@ -15,6 +16,7 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: 'login', element: <LoginPage /> },
       { path: 'signup', element: <SignupPage /> },
+      { path: 'v1/auth/google/callback', element: <GoogleCallbackPage /> },
       {
         element: <ProtectedRoute />,
         children: [
