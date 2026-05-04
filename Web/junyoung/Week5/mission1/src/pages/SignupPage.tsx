@@ -11,8 +11,7 @@ import {
   type PasswordFormData,
   type NicknameFormData,
 } from '../schemas/signupSchema';
-
-const GOOGLE_LOGIN_URL = 'http://localhost:8000/v1/auth/google/login';
+import { API_BASE_URL, GOOGLE_LOGIN_URL } from '../config/api';
 
 // ─── Step 1: 이메일 ───────────────────────────────────────────
 const EmailStep = ({
@@ -274,7 +273,7 @@ const SignupPage = () => {
 
   const handleSignup = async (name: string) => {
     try {
-      await axios.post('http://localhost:8000/v1/auth/signup', {
+      await axios.post(`${API_BASE_URL}/auth/signup`, {
         email,
         password,
         name,

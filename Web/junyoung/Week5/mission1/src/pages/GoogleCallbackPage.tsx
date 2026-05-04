@@ -7,8 +7,13 @@ const GoogleCallbackPage = () => {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const accessToken = searchParams.get('accessToken');
-    const refreshToken = searchParams.get('refreshToken');
+    const accessToken =
+      searchParams.get('accessToken') ??
+      searchParams.get('access_token') ??
+      searchParams.get('token');
+    const refreshToken =
+      searchParams.get('refreshToken') ??
+      searchParams.get('refresh_token');
 
     if (!accessToken || !refreshToken) {
       alert('구글 로그인에 실패했습니다.');

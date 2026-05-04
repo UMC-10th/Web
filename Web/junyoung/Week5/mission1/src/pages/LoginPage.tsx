@@ -4,8 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
 import { loginSchema, type LoginFormData } from '../schemas/loginSchema';
 import { setAuthTokens } from '../utils/auth';
-
-const GOOGLE_LOGIN_URL = 'http://localhost:8000/v1/auth/google/login';
+import { API_BASE_URL, GOOGLE_LOGIN_URL } from '../config/api';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -23,7 +22,7 @@ const LoginPage = () => {
   const onSubmit = async (data: LoginFormData) => {
     try {
       const { data: res } = await axios.post(
-        'http://localhost:8000/v1/auth/signin',
+        `${API_BASE_URL}/auth/signin`,
         { email: data.email, password: data.password }
       );
       const { accessToken, refreshToken } = res.data;
