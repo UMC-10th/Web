@@ -56,7 +56,7 @@ const routes: RouteObject[] = [
           { path: "signup", element: <SignUpPage /> },
           { path: "v1/auth/google/callback", element: <GoogleLoginRedirectPage /> },
           { path: "lps", element: <LPListPage /> }, 
-          { path: "lp/:lpid", element: <LPDetailPage /> },
+          { path: "lps/:lpid", element: <LPDetailPage /> },
           {
             element: <PrivateLayout />, 
             children: [
