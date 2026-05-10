@@ -9,3 +9,21 @@ export interface Lp {
 }
 
 export type SortOrder = 'desc' | 'asc';
+
+export interface LpPage {
+  items: Lp[];
+  nextPage: number | null;
+}
+
+export interface LpComment {
+  id: number;
+  lpId: number;
+  author: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface CommentPage {
+  items: LpComment[];
+  nextPage: number | null;
+}

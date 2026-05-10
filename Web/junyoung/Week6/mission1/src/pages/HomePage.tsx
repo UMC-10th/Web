@@ -1,20 +1,51 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getLps } from '../api/lps';
+import { useEffect, useRef, useState } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { getLpsPage } from '../api/lps';
 import LpCard from '../components/LpCard';
 import LpCardSkeleton from '../components/LpCardSkeleton';
 import type { SortOrder } from '../types/lp';
 
 const HomePage = () => {
   const [sort, setSort] = useState<SortOrder>('desc');
-  const { data: lps = [], isLoading, isError, refetch } = useQuery({
+  const observerRef = useRef<HTMLDivElement | null>(null);
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ['lps', sort],
-    queryFn: () => getLps(sort),
+    queryFn: ({ pageParam }) => getLpsPage(sort, pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
   });
+
+  const lps = data?.pages.flatMap((page) => page.items) ?? [];
+
+  useEffect(() => {
+    const target = observerRef.current;
+
+    if (!target || !hasNextPage) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    });
+
+    observer.observe(target);
+
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   return (
     <section className="mx-auto max-w-5xl">
-      <div className="mb-5 flex items-center justify-between gap-3">
+      <div className="mb-5 flex flex-col items-start gap-3">
         <h1 className="text-xl font-bold">LP 목록</h1>
         <div className="flex rounded-md border border-gray-700 p-1">
           <button
@@ -46,6 +77,16 @@ const HomePage = () => {
           ? Array.from({ length: 8 }).map((_, index) => <LpCardSkeleton key={index} />)
           : lps.map((lp) => <LpCard key={lp.id} lp={lp} />)}
       </div>
+
+      {isFetchingNextPage && (
+        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <LpCardSkeleton key={index} />
+          ))}
+        </div>
+      )}
+
+      <div ref={observerRef} className="h-10" />
     </section>
   );
 };
