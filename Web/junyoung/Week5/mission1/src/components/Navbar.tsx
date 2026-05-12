@@ -1,19 +1,12 @@
-import { useEffect, useState } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { clearAuthTokens, isAuthenticated } from '../utils/auth';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [loggedIn, setLoggedIn] = useState(() => isAuthenticated());
-
-  useEffect(() => {
-    setLoggedIn(isAuthenticated());
-  }, [location.pathname]);
+  const loggedIn = isAuthenticated();
 
   const handleLogout = () => {
     clearAuthTokens();
-    setLoggedIn(false);
     navigate('/');
   };
 

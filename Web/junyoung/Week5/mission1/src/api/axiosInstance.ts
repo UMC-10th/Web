@@ -5,6 +5,7 @@ import {
   getRefreshToken,
   setAuthTokens,
 } from '../utils/auth';
+import { API_BASE_URL } from '../config/api';
 
 type RetryRequestConfig = InternalAxiosRequestConfig & {
   _retry?: boolean;
@@ -14,8 +15,6 @@ type TokenResponse = {
   accessToken: string;
   refreshToken: string;
 };
-
-const API_BASE_URL = 'http://localhost:8000/v1';
 
 let refreshPromise: Promise<TokenResponse> | null = null;
 

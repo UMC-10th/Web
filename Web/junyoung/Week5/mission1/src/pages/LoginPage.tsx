@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
 import { loginSchema, type LoginFormData } from '../schemas/loginSchema';
 import { setAuthTokens } from '../utils/auth';
+import { API_BASE_URL, GOOGLE_LOGIN_URL } from '../config/api';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ const LoginPage = () => {
   const onSubmit = async (data: LoginFormData) => {
     try {
       const { data: res } = await axios.post(
-        'http://localhost:8000/v1/auth/signin',
+        `${API_BASE_URL}/auth/signin`,
         { email: data.email, password: data.password }
       );
       const { accessToken, refreshToken } = res.data;
@@ -30,6 +31,10 @@ const LoginPage = () => {
     } catch {
       alert('이메일 또는 비밀번호가 올바르지 않습니다.');
     }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = GOOGLE_LOGIN_URL;
   };
 
   return (
@@ -56,6 +61,7 @@ const LoginPage = () => {
           {/* 구글 로그인 버튼 */}
           <button
             type="button"
+            onClick={handleGoogleLogin}
             className="w-full relative flex items-center border border-gray-600 bg-transparent text-white font-medium text-sm px-4 rounded-md hover:border-gray-400 transition-colors"
             style={{ height: '40px' }}
           >
