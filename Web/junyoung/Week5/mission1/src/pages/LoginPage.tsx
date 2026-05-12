@@ -1,31 +1,14 @@
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
-import useForm from '../hooks/useForm';
-import useLocalStorage from '../hooks/useLocalStorage';
-
-interface LoginForm {
-  email: string;
-  password: string;
-}
-
-const validate = (values: LoginForm) => {
-  const errors: Partial<Record<keyof LoginForm, string>> = {};
-
-  if (values.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
-    errors.email = '올바른 이메일 형식을 입력해주세요.';
-  }
-
-  if (values.password && values.password.length < 6) {
-    errors.password = '비밀번호는 8자 이상이어야 합니다.';
-  }
-
-  return errors;
-};
+import { loginSchema, type LoginFormData } from '../schemas/loginSchema';
+import { setAuthTokens } from '../utils/auth';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname ?? '/';
   const {
     register,
     handleSubmit,
@@ -35,20 +18,15 @@ const LoginPage = () => {
     mode: 'onChange',
   });
 
-  const [, setAccessToken] = useLocalStorage<string>('accessToken', '');
-  const [, setRefreshToken] = useLocalStorage<string>('refreshToken', '');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: LoginFormData) => {
     try {
       const { data: res } = await axios.post(
         'http://localhost:8000/v1/auth/signin',
         { email: data.email, password: data.password }
       );
-      const { accessToken, refreshToken } = data.data;
-      setAccessToken(accessToken);
-      setRefreshToken(refreshToken);
-      navigate('/');
+      const { accessToken, refreshToken } = res.data;
+      setAuthTokens({ accessToken, refreshToken });
+      navigate(from, { replace: true });
     } catch {
       alert('이메일 또는 비밀번호가 올바르지 않습니다.');
     }
@@ -67,6 +45,12 @@ const LoginPage = () => {
           </button>
           <h1 className="text-white text-lg font-bold">로그인</h1>
         </div>
+
+        {from !== '/' && (
+          <div className="rounded-md border border-pink-500/30 bg-pink-500/10 px-4 py-3 text-sm leading-6 text-pink-100">
+            인증이 필요한 페이지입니다. 로그인 후 요청한 페이지로 이동합니다.
+          </div>
+        )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           {/* 구글 로그인 버튼 */}
