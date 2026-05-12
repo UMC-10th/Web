@@ -16,7 +16,7 @@ const router = createBrowserRouter([
         element: <MoviePage />,
       },
       {
-        path: "movies/detail/:movieId",
+        path: "movies/detail/:movieId", // 상세 페이지 경로 수정
         element: <MovieDetailPage />,
       },
     ],
