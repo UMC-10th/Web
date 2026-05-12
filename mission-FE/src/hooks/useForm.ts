@@ -6,11 +6,19 @@ interface useFormProps<T> {
   validate: (values: T) => Record<keyof T, string>;
 }
 
-function useForm<T>({ initialValues, validate }: useFormProps<T>) {
+function useForm<T extends Object>({
+  initialValues,
+  validate,
+}: useFormProps<T>) {
   const [values, setValues] = useState(initialValues);
   //what record?
   const [touched, setTouched] = useState<Record<string, boolean>>();
   const [errors, setErrors] = useState<Record<string, string>>();
+
+  // 오류가 하나라도 있거나, 입력값이 비어있으면 버튼을 활성화
+  const isDisabled =
+    Object.values(errors || {}).some((error) => error.length > 0) || // 오류가 있으면 true
+    Object.values(values).some((value) => value === ""); // 입력값이 비어있으면 true
 
   // 사용자가 입력값을 바꿀 때 실행되는 함수다.
   const handleChange = (name: keyof T, text: string) => {
@@ -43,7 +51,7 @@ function useForm<T>({ initialValues, validate }: useFormProps<T>) {
     setErrors(newErrors); // 오류 메시지 업데이ㅌ,
   }, [validate, values]);
 
-  return { values, errors, touched, getInputProps };
+  return { values, errors, touched, getInputProps, isDisabled };
 }
 
 export default useForm;

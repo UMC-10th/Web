@@ -1,21 +1,23 @@
+import { postSignin } from "../apis/auth";
+import { LOCAL_STORAGE_KEY } from "../constants/key";
 import useForm from "../hooks/useForm";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 import { validateSignin, type UserSigninInformation } from "../utils/validate";
 
 const LoginPage = () => {
-  const { values, errors, touched, getInputProps } =
+  const { setItem } = useLocalStorage(LOCAL_STORAGE_KEY.accessToken);
+  const { values, errors, touched, getInputProps, isDisabled } =
     useForm<UserSigninInformation>({
       initialValues: { email: "", password: "" },
       validate: validateSignin,
     });
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log(values);
+    const response = await postSignin(values);
+    setItem(response.data.accessToken);
+    console.log(response);
   };
-
-  // 오류가 하나라도 있거나, 입력값이 비어있으면 버튼을 활성화
-  const isDisabled =
-    Object.values(errors || {}).some((error) => error.length > 0) || // 오류가 있으면 true
-    Object.values(values).some((value) => value === ""); // 입력값이 비어있으면 true
 
   return (
     <div className="flex flex-col items-center justify-center h-full gap-4">
