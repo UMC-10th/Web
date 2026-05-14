@@ -1,0 +1,60 @@
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+input {
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background-color: white;
+  box-sizing: border-box;
+}
+
+.error-input {
+  border: 2px solid #ff4d4d;
+}
+
+.error-msg {
+  color: #ff4d4d;
+  font-size: 12px;
+  margin-top: -5px;
+  margin-bottom: 10px;
+}
+
+.login-submit-btn {
+  width: 100%;
+  padding: 15px;
+  border-radius: 8px;
+  border: none;
+  background-color: #444; /* 비활성화 상태 */
+  color: white;
+  font-weight: bold;
+  cursor: not-allowed;
+}
+
+/* 유효성 검사 통과 시 활성화 (이미지 속 핑크색) */
+.login-submit-btn.active {
+  background-color: #ff2d78; 
+  cursor: pointer;
+}
