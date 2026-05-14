@@ -1,9 +1,18 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 import { useGetLpDetail } from "../hooks/useGetLPDetail";
-import { useInView } from "react-intersection-observer";
 import { useGetLPComments } from "../hooks/useGetLPComments";
+import { useInView } from "react-intersection-observer";
+import {
+  createComment,
+  updateComment,
+  deleteComment,
+  toggleLike,
+  deleteLp,
+} from "../apis/lp";
+import { getMyInfo } from "../apis/auth";
 
 const CommentSkeleton = () => (
   <div className="bg-[#1a1a1a] p-4 rounded-lg border border-[#222] animate-pulse">
@@ -21,22 +30,26 @@ const LPDetailPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { accessToken } = useAuth();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!accessToken) {
       alert("로그인이 필요한 서비스입니다. 로그인 페이지로 이동합니다! 🚨");
-      navigate("/login", {
-        state: { from: location.pathname },
-        replace: true,
-      });
+      navigate("/login", { state: { from: location.pathname }, replace: true });
     }
   }, [accessToken, navigate, location]);
+
+  const { data: myInfoRes } = useQuery({
+    queryKey: ["myInfo"],
+    queryFn: getMyInfo,
+    enabled: !!accessToken,
+  });
+  const myId = myInfoRes?.data?.id;
 
   const { data: response, isPending, isError, refetch } = useGetLpDetail(lpid);
 
   const [order, setOrder] = useState<"latest" | "oldest">("latest");
   const { ref, inView } = useInView();
-
   const {
     data: commentsData,
     isPending: isCommentsPending,
@@ -46,12 +59,59 @@ const LPDetailPage = () => {
   } = useGetLPComments(lpid, order);
 
   useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
+    if (inView && hasNextPage && !isFetchingNextPage) fetchNextPage();
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const commentsList = commentsData?.pages.flatMap((page) => page.data.data) || [];
+  const commentsList =
+    commentsData?.pages.flatMap((page: any) => page.data.data) || [];
+
+  const [commentText, setCommentText] = useState("");
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingText, setEditingText] = useState("");
+
+  const { mutate: addComment, isPending: isAddingComment } = useMutation({
+    mutationFn: createComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lpComments", lpid] });
+      setCommentText("");
+    },
+    onError: () => alert("댓글 작성에 실패했습니다."),
+  });
+
+  const { mutate: editComment } = useMutation({
+    mutationFn: updateComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lpComments", lpid] });
+      setEditingId(null);
+      setEditingText("");
+    },
+    onError: () => alert("댓글 수정에 실패했습니다."),
+  });
+
+  const { mutate: removeComment } = useMutation({
+    mutationFn: deleteComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lpComments", lpid] });
+    },
+    onError: () => alert("댓글 삭제에 실패했습니다."),
+  });
+
+  const { mutate: handleLike, isPending: isLiking } = useMutation({
+    mutationFn: () => toggleLike(Number(lpid)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lp", lpid] });
+    },
+    onError: () => alert("좋아요 처리에 실패했습니다."),
+  });
+
+  const { mutate: handleDelete, isPending: isDeleting } = useMutation({
+    mutationFn: () => deleteLp(Number(lpid)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lps"] });
+      navigate("/", { replace: true });
+    },
+    onError: () => alert("LP 삭제에 실패했습니다."),
+  });
 
   if (!accessToken) return null;
 
@@ -80,6 +140,8 @@ const LPDetailPage = () => {
   }
 
   const lp = response?.data;
+  // ✅ likes가 배열이면 length, 숫자면 그대로
+  const likesCount = Array.isArray(lp?.likes) ? lp.likes.length : (lp?.likes || 0);
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-[#0f1014] p-8">
@@ -97,7 +159,8 @@ const LPDetailPage = () => {
           <h1 className="text-[#FF1493] text-4xl font-bold">{lp?.title || "제목 없음"}</h1>
           <div className="flex gap-4 mt-2 text-gray-400 text-sm">
             <span>📅 {lp?.createdAt ? new Date(lp.createdAt).toLocaleDateString() : "업로드일 모름"}</span>
-            <span>❤️ 좋아요 {lp?.likes || 0}개</span>
+            {/* ✅ likesCount 사용 */}
+            <span>❤️ 좋아요 {likesCount}개</span>
             {lp?.artist && <span>🎤 아티스트: {lp.artist}</span>}
           </div>
         </div>
@@ -109,18 +172,25 @@ const LPDetailPage = () => {
         </div>
 
         <div className="flex justify-end gap-3 mt-8">
-          <button className="px-6 py-2 bg-[#222] hover:bg-[#333] text-white rounded-lg font-bold transition-colors">
+          <button
+            onClick={() => handleLike()}
+            disabled={isLiking}
+            className="px-6 py-2 bg-[#222] hover:bg-[#333] text-white rounded-lg font-bold transition-colors disabled:opacity-50"
+          >
             ❤️ 좋아요
           </button>
           <button className="px-6 py-2 border border-[#FF1493] text-[#FF1493] hover:bg-[#FF1493] hover:text-white rounded-lg font-bold transition-colors">
             수정
           </button>
-          <button className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold transition-colors">
-            삭제
+          <button
+            onClick={() => { if (window.confirm("정말 삭제하시겠습니까?")) handleDelete(); }}
+            disabled={isDeleting}
+            className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold transition-colors disabled:opacity-50"
+          >
+            {isDeleting ? "삭제 중..." : "삭제"}
           </button>
         </div>
 
-        {/* 댓글 영역 */}
         <hr className="border-[#333] my-8" />
 
         <div>
@@ -134,21 +204,25 @@ const LPDetailPage = () => {
             </button>
           </div>
 
-          {/* 댓글 작성란 */}
           <div className="bg-[#111] p-4 rounded-xl border border-[#333] mb-8">
             <textarea
               placeholder="따뜻한 댓글을 남겨보세요..."
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
               className="w-full bg-transparent text-white resize-none outline-none placeholder-gray-500 h-20"
-            ></textarea>
+            />
             <div className="flex justify-between items-center mt-2 border-t border-[#222] pt-3">
               <span className="text-xs text-[#FF1493]">※ 타인을 비방하는 댓글은 삭제될 수 있습니다.</span>
-              <button className="bg-[#FF1493] text-white px-6 py-2 rounded-lg font-bold hover:opacity-90 transition-opacity">
-                등록
+              <button
+                disabled={isAddingComment || !commentText.trim()}
+                onClick={() => addComment({ lpId: Number(lpid), content: commentText.trim() })}
+                className="bg-[#FF1493] text-white px-6 py-2 rounded-lg font-bold hover:opacity-90 disabled:opacity-50 transition-opacity"
+              >
+                {isAddingComment ? "등록 중..." : "등록"}
               </button>
             </div>
           </div>
 
-          {/* 댓글 목록 */}
           {isCommentsPending ? (
             <div className="flex flex-col gap-4">
               <CommentSkeleton />
@@ -167,7 +241,47 @@ const LPDetailPage = () => {
                       {comment.createdAt ? new Date(comment.createdAt).toLocaleDateString() : ""}
                     </span>
                   </div>
-                  <p className="text-gray-300">{comment.content}</p>
+
+                  {editingId === comment.id ? (
+                    <div className="flex gap-2 mt-2">
+                      <input
+                        value={editingText}
+                        onChange={(e) => setEditingText(e.target.value)}
+                        className="flex-1 bg-[#111] border border-[#444] text-white rounded px-3 py-1 outline-none focus:border-[#FF1493]"
+                      />
+                      <button
+                        onClick={() => editComment({ lpId: Number(lpid), commentId: comment.id, content: editingText })}
+                        className="text-sm bg-[#FF1493] text-white px-3 py-1 rounded"
+                      >
+                        저장
+                      </button>
+                      <button
+                        onClick={() => setEditingId(null)}
+                        className="text-sm bg-[#333] text-white px-3 py-1 rounded"
+                      >
+                        취소
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-gray-300">{comment.content}</p>
+                  )}
+
+                  {comment.author?.id === myId && editingId !== comment.id && (
+                    <div className="flex gap-2 mt-3 justify-end">
+                      <button
+                        onClick={() => { setEditingId(comment.id); setEditingText(comment.content); }}
+                        className="text-xs text-gray-400 hover:text-white px-2 py-1 bg-[#222] rounded"
+                      >
+                        ✏️ 수정
+                      </button>
+                      <button
+                        onClick={() => removeComment({ lpId: Number(lpid), commentId: comment.id })}
+                        className="text-xs text-red-400 hover:text-red-300 px-2 py-1 bg-[#222] rounded"
+                      >
+                        🗑️ 삭제
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -182,7 +296,6 @@ const LPDetailPage = () => {
 
           <div ref={ref} className="h-10 mt-2"></div>
         </div>
-
       </div>
     </div>
   );

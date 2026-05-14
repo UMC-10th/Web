@@ -1,16 +1,14 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 import useForm from "../hooks/useForm";
 import { validateSignin } from "../utils/validate";
 import { ChevronLeft } from "lucide-react";
-import { useState } from "react";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
-  const [serverError, setServerError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   const { values, errors, touched, getInputProps } = useForm({
     init_val: { email: "", password: "" },
@@ -23,29 +21,31 @@ const LoginPage = () => {
     values.email !== "" &&
     values.password !== "";
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isFormValid || isLoading) return;
-
-    setIsLoading(true);
-    setServerError("");
-
-    try {
-      await login(values);
+  // ✅ mutationFn을 login으로 — postSignin 이중 호출 방지
+  // login({ email, password }) → postSignin 호출 → 토큰 저장까지 한 번에
+  const { mutate: handleLogin, isPending, error } = useMutation({
+    mutationFn: login,
+    onSuccess: () => {
       const from = location.state?.from || "/mypage";
       navigate(from, { replace: true });
-    } catch (err: any) {
-      const msg =
-        err.response?.data?.message || "로그인 중 오류가 발생했습니다.";
-      setServerError(msg);
-    } finally {
-      setIsLoading(false);
-    }
+    },
+    // onError는 선언 생략 → error 객체로 렌더링에서 처리
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isFormValid || isPending) return;
+    handleLogin(values);
   };
+
+  // 서버 에러 메시지 추출
+  const serverError = error
+    ? ((error as any).response?.data?.message ?? "로그인 중 오류가 발생했습니다.")
+    : null;
 
   return (
     <div className="flex flex-col justify-center items-center min-h-[calc(100vh-4rem)] bg-[#0f1014] py-10">
-      
+
       <div className="flex justify-center items-center relative w-full max-w-[400px] mb-8">
         <button
           onClick={() => navigate(-1)}
@@ -60,15 +60,13 @@ const LoginPage = () => {
         onSubmit={handleSubmit}
         className="flex flex-col gap-5 w-full max-w-[400px] px-4"
       >
-       
+        {/* 이메일 */}
         <div className="flex flex-col gap-2">
           <input
             type="email"
             placeholder="이메일을 입력해주세요"
             className={`bg-[#1a1a1a] border ${
-              touched.email && errors.email
-                ? "border-red-500"
-                : "border-[#333]"
+              touched.email && errors.email ? "border-red-500" : "border-[#333]"
             } rounded-lg p-4 text-white placeholder-gray-500 focus:border-[#FF1493] outline-none transition-colors`}
             {...getInputProps("email")}
           />
@@ -77,7 +75,7 @@ const LoginPage = () => {
           )}
         </div>
 
-        
+        {/* 비밀번호 */}
         <div className="flex flex-col gap-2">
           <input
             type="password"
@@ -90,24 +88,24 @@ const LoginPage = () => {
             {...getInputProps("password")}
           />
           {touched.password && errors.password && (
-            <span className="text-red-500 text-xs ml-1">
-              {errors.password}
-            </span>
+            <span className="text-red-500 text-xs ml-1">{errors.password}</span>
           )}
         </div>
 
-        
+        {/* 서버 에러 */}
         {serverError && (
           <p className="text-red-500 text-sm text-center">{serverError}</p>
         )}
 
         <button
           type="submit"
-          disabled={!isFormValid || isLoading}
+          disabled={!isFormValid || isPending}
           className="mt-2 h-[52px] rounded-lg font-bold text-white transition-colors disabled:bg-[#333] disabled:cursor-not-allowed"
-          style={{ backgroundColor: isFormValid && !isLoading ? "#FF1493" : undefined }}
+          style={{
+            backgroundColor: isFormValid && !isPending ? "#FF1493" : undefined,
+          }}
         >
-          {isLoading ? "로그인 중..." : "로그인"}
+          {isPending ? "로그인 중..." : "로그인"}
         </button>
 
         <p className="text-center text-gray-500 text-sm">

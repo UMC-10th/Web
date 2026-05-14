@@ -1,14 +1,15 @@
 // src/layouts/HomeLayout.tsx
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useGetMyInfo } from "../hooks/useGetMyInfo"; 
+import { useGetMyInfo } from "../hooks/useGetMyInfo";
 import { useState } from "react";
+import LPWriteModal from "../components/LPWriteModal";
 
 export default function HomeLayout() {
   const navigate = useNavigate();
   const { accessToken, logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: userInfo } = useGetMyInfo(accessToken);
 
@@ -19,17 +20,14 @@ export default function HomeLayout() {
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-[#0f1014] text-white relative">
-      
-      
+
       <nav className="flex justify-between items-center px-4 md:px-8 h-16 w-full bg-[#1a1a1a] border-b border-[#333] z-50 sticky top-0">
         <div className="flex items-center gap-4">
-          
           <button className="md:hidden text-white" onClick={() => setIsSidebarOpen(true)}>
             <svg width="32" height="32" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
               <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M7.95 11.95h32m-32 12h32m-32 12h32"/>
             </svg>
           </button>
-          
           <h1 onClick={() => navigate("/")} className="text-2xl font-bold text-[#FF1493] cursor-pointer select-none">
             돌려돌려LP판
           </h1>
@@ -38,7 +36,6 @@ export default function HomeLayout() {
         <div className="hidden md:flex gap-4 items-center">
           {accessToken ? (
             <>
-              
               <span className="text-gray-300 mr-2">
                 <span className="text-[#FF1493] font-bold">
                   {userInfo?.data?.name || "회원"}
@@ -58,7 +55,6 @@ export default function HomeLayout() {
       </nav>
 
       <div className="flex flex-1 w-full">
-        
         {isSidebarOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" onClick={() => setIsSidebarOpen(false)} />
         )}
@@ -72,19 +68,25 @@ export default function HomeLayout() {
           </div>
         </aside>
 
-        
         <main className="flex-1 w-full">
           <Outlet />
         </main>
       </div>
 
+      {/* ✅ /write 대신 모달로 변경 */}
+      {accessToken && (
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="fixed bottom-8 right-8 w-14 h-14 bg-[#FF1493] rounded-full flex justify-center items-center text-white text-3xl shadow-lg hover:scale-110 transition-transform z-50"
+        >
+          +
+        </button>
+      )}
 
-      <button 
-        onClick={() => navigate("/write")} 
-        className="fixed bottom-8 right-8 w-14 h-14 bg-[#FF1493] rounded-full flex justify-center items-center text-white text-3xl shadow-lg hover:scale-110 transition-transform z-50"
-      >
-        +
-      </button>
+      {/* ✅ 모달 */}
+      {isModalOpen && (
+        <LPWriteModal onClose={() => setIsModalOpen(false)} />
+      )}
 
     </div>
   );
