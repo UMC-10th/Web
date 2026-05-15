@@ -1,11 +1,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getLPComments } from "../apis/lp";
 
-export const useGetLPComments = (
-  lpId: string | undefined,
-  order: "latest" | "oldest"
-) => {
-  // ✅ latest → desc, oldest → asc 변환
+export const useGetLPComments = (lpId: string | undefined, order: "latest" | "oldest") => {
   const serverOrder = order === "latest" ? "desc" : "asc";
 
   return useInfiniteQuery({

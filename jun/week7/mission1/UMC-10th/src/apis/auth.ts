@@ -1,11 +1,5 @@
 import axios from "axios";
-import type {
-  ReqSignInDto,
-  ReqSignUpDto,
-  ResMyInfoDto,
-  ResSignInDto,
-  ResSignUpDto,
-} from "../types/auth";
+import type { ReqSignInDto, ReqSignUpDto, ResMyInfoDto, ResSignInDto, ResSignUpDto } from "../types/auth";
 import { axiosInstance } from "./axios";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -30,24 +24,12 @@ export const postLogout = async () => {
   return data;
 };
 
-export const patchMyInfo = async ({
-  name,
-  bio,
-  avatar,
-}: {
-  name: string;
-  bio?: string;
-  avatar?: string;
-}) => {
-  const { data } = await axiosInstance.patch("/v1/users", {  // ✅ /me 제거
-    name,
-    bio,
-    avatar,
-  });
+export const patchMyInfo = async ({ name, bio, avatar }: { name: string; bio?: string; avatar?: string }) => {
+  const { data } = await axiosInstance.patch("/v1/users", { name, bio, avatar });
   return data;
 };
 
 export const deleteMyAccount = async () => {
-  const { data } = await axiosInstance.delete("/v1/users");  // ✅ /me 제거
+  const { data } = await axiosInstance.delete("/v1/users");
   return data;
 };

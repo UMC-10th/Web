@@ -28,13 +28,7 @@ export const createLp = async (formData: FormData) => {
   return data;
 };
 
-export const updateLp = async ({
-  lpId,
-  formData,
-}: {
-  lpId: number;
-  formData: FormData;
-}) => {
+export const updateLp = async ({ lpId, formData }: { lpId: number; formData: FormData }) => {
   const { data } = await axiosInstance.patch(`/v1/lps/${lpId}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
@@ -67,44 +61,17 @@ export const getLPComments = async (
   return data;
 };
 
-export const createComment = async ({
-  lpId,
-  content,
-}: {
-  lpId: number;
-  content: string;
-}) => {
-  const { data } = await axiosInstance.post(`/v1/lps/${lpId}/comments`, {
-    content,
-  });
+export const createComment = async ({ lpId, content }: { lpId: number; content: string }) => {
+  const { data } = await axiosInstance.post(`/v1/lps/${lpId}/comments`, { content });
   return data;
 };
 
-export const updateComment = async ({
-  lpId,
-  commentId,
-  content,
-}: {
-  lpId: number;
-  commentId: number;
-  content: string;
-}) => {
-  const { data } = await axiosInstance.patch(
-    `/v1/lps/${lpId}/comments/${commentId}`,
-    { content }
-  );
+export const updateComment = async ({ lpId, commentId, content }: { lpId: number; commentId: number; content: string }) => {
+  const { data } = await axiosInstance.patch(`/v1/lps/${lpId}/comments/${commentId}`, { content });
   return data;
 };
 
-export const deleteComment = async ({
-  lpId,
-  commentId,
-}: {
-  lpId: number;
-  commentId: number;
-}) => {
-  const { data } = await axiosInstance.delete(
-    `/v1/lps/${lpId}/comments/${commentId}`
-  );
+export const deleteComment = async ({ lpId, commentId }: { lpId: number; commentId: number }) => {
+  const { data } = await axiosInstance.delete(`/v1/lps/${lpId}/comments/${commentId}`);
   return data;
 };
