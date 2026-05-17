@@ -3,13 +3,15 @@ import type { CommonRes } from "./common";
 
 export type Lp = {
   id: number;
-  title: string;      // title 속성 추가
+  title: string;
   content?: string;
-  thumbnail?: string; // 또는 imageUrl? 형태
-  artist?: string;    // LP에 아티스트 정보가 포함될 경우
+  thumbnail?: string;
+  artist?: string;
   createdAt?: string;
   updatedAt?: string;
   likes?: number;
+  tags?: string[];
+  author?: { id: number; name: string };
 };
 
 export type GetLpsResponse = CommonRes<{
@@ -17,3 +19,28 @@ export type GetLpsResponse = CommonRes<{
   cursor: number | null;
   hasNext: boolean;
 }>;
+
+export type ReqCreateLpDto = {
+  title: string;
+  content: string;
+  thumbnail?: File | null;
+  tags: string[];
+};
+
+export type ReqUpdateLpDto = ReqCreateLpDto;
+
+export type CreateLpResponse = CommonRes<Lp>;
+
+export type Comment = {
+  id: number;
+  content: string;
+  createdAt: string;
+  updatedAt?: string;
+  author: {
+    id: number;
+    name: string;
+  };
+};
+
+export type ReqCreateCommentDto = { content: string };
+export type ReqUpdateCommentDto = { content: string };
