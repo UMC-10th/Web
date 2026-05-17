@@ -2,6 +2,7 @@ import { axiosInstance } from "./axios";
 import type {
   CreateLpResponse,
   GetLpsResponse,
+  LpDetailResponse,
   ReqCreateCommentDto,
   ReqCreateLpDto,
   ReqUpdateCommentDto,
@@ -19,7 +20,7 @@ export const getLps = async (
   return data;
 };
 
-export const getLpDetail = async (id: number) => {
+export const getLpDetail = async (id: number): Promise<LpDetailResponse> => {
   const { data } = await axiosInstance.get(`/v1/lps/${id}`);
   return data;
 };

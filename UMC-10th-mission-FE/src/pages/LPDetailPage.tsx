@@ -6,6 +6,7 @@ import { Heart } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useGetLpDetail } from "../hooks/useGetLPDetail";
 import { deleteLp, postLpLike } from "../apis/lp";
+import type { LpDetailResponse } from "../types/lp";
 import CommentSection from "../components/CommentSection";
 import LpWriteModal from "../components/LpWriteModal";
 import ConfirmModal from "../components/ConfirmModal";
@@ -28,7 +29,10 @@ const LPDetailPage = () => {
         replace: true,
       });
     }
-  }, [accessToken, navigate, location]);
+    // location은 navigate 시 현재 pathname을 state에 담기 위한 값이므로
+    // 의존성 배열에서 제외해 쿼리 상태 변화로 인한 불필요한 effect 재실행을 방지
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accessToken]);
 
   const { data: response, isPending, isError, refetch } = useGetLpDetail(lpid);
 
@@ -41,10 +45,41 @@ const LPDetailPage = () => {
     },
   });
 
-  // 좋아요 토글
+  // 좋아요 토글 (낙관적 업데이트)
   const { mutate: handleLike, isPending: isLiking } = useMutation({
     mutationFn: () => postLpLike(Number(lpid)),
+    onMutate: async () => {
+      // 진행 중인 상세 조회 쿼리 취소 (race condition 방지)
+      await queryClient.cancelQueries({ queryKey: ["lp", lpid] });
+
+      // 롤백용 스냅샷 저장
+      const previousData = queryClient.getQueryData<LpDetailResponse>(["lp", lpid]);
+
+      // 좋아요 상태 즉시 토글
+      queryClient.setQueryData<LpDetailResponse>(["lp", lpid], (old) => {
+        if (!old) return old;
+        const liked = old.data.isLiked ?? false;
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            isLiked: !liked,
+            likes: (old.data.likes ?? 0) + (liked ? -1 : 1),
+          },
+        };
+      });
+
+      return { previousData };
+    },
+    onError: (_error, _variables, context) => {
+      // 요청 실패 시 스냅샷으로 롤백 (에러 시 재요청 없이 롤백만 수행)
+      if (context?.previousData) {
+        queryClient.setQueryData(["lp", lpid], context.previousData);
+      }
+    },
     onSuccess: () => {
+      // 성공 시에만 서버 최신 데이터로 동기화
+      // (실패 시 재요청을 막아 LP 상세 오류 화면으로 튕기는 현상 방지)
       queryClient.invalidateQueries({ queryKey: ["lp", lpid] });
     },
   });
@@ -136,16 +171,21 @@ const LPDetailPage = () => {
         <div className="flex justify-end gap-3 mt-8">
           {/* 좋아요 */}
           <button
+            type="button"
             onClick={() => handleLike()}
             disabled={isLiking}
             className="flex items-center gap-2 px-6 py-2 bg-[#222] hover:bg-[#333] text-white rounded-lg font-bold transition-colors disabled:opacity-50"
           >
-            <Heart size={16} />
-            {isLiking ? "처리 중..." : `좋아요 ${lp?.likes ?? 0}`}
+            <Heart
+              size={16}
+              className={lp?.isLiked ? "fill-[#FF1493] text-[#FF1493]" : "text-white"}
+            />
+            좋아요 {lp?.likes ?? 0}
           </button>
 
           {/* 수정 */}
           <button
+            type="button"
             onClick={() => setIsEditModalOpen(true)}
             className="px-6 py-2 border border-[#FF1493] text-[#FF1493] hover:bg-[#FF1493] hover:text-white rounded-lg font-bold transition-colors"
           >
@@ -154,6 +194,7 @@ const LPDetailPage = () => {
 
           {/* 삭제 */}
           <button
+            type="button"
             onClick={() => setIsDeleteModalOpen(true)}
             className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold transition-colors"
           >

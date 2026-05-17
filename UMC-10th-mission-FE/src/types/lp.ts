@@ -10,9 +10,12 @@ export type Lp = {
   createdAt?: string;
   updatedAt?: string;
   likes?: number;
+  isLiked?: boolean;
   tags?: string[];
   author?: { id: number; name: string };
 };
+
+export type LpDetailResponse = CommonRes<Lp>;
 
 export type GetLpsResponse = CommonRes<{
   data: Lp[];
