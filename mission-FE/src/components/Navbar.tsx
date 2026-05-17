@@ -4,9 +4,10 @@ import useGetMyInfo from "../hooks/queries/useGetMyInfo";
 
 interface NavbarProps {
   onMenuClick?: () => void;
+  onCollapseToggle?: () => void;
 }
 
-const Navbar = ({ onMenuClick }: NavbarProps) => {
+const Navbar = ({ onMenuClick, onCollapseToggle }: NavbarProps) => {
   const { accessToken, logout } = useAuth();
   const { data: myInfo } = useGetMyInfo(!!accessToken);
   const navigate = useNavigate();
@@ -40,6 +41,28 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
                   strokeWidth="4"
                   d="M7.95 11.95h32m-32 12h32m-32 12h32"
                 />
+              </svg>
+            </button>
+          )}
+
+          {/* Desktop collapse toggle */}
+          {onCollapseToggle && (
+            <button
+              onClick={onCollapseToggle}
+              className="hidden md:inline-flex p-2 hover:bg-white/10 rounded-md ml-2"
+              aria-label="Collapse Sidebar"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="15 18 9 12 15 6" />
               </svg>
             </button>
           )}
