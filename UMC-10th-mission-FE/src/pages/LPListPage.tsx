@@ -1,34 +1,49 @@
 // src/pages/LPListPage.tsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useInView } from "react-intersection-observer"; // 👈 마법의 관찰 카메라
 import { useGetLpList } from "../hooks/useGetLpList";
-import { LpCardSkeleton } from "../components/LpCardSkeleton"; // 👈 스켈레톤 가져오기
+import { LpCardSkeleton } from "../components/LpCardSkeleton";
+import { useThrottle } from "../hooks/useThrottle";
 
 const LPListPage = () => {
   const navigate = useNavigate();
   const [sort, setSort] = useState<"latest" | "oldest">("latest");
 
-  // 📸 관찰 카메라 달기 (맨 밑에 닿으면 inView가 true가 됨!)
-  const { ref, inView } = useInView();
+  // 현재 스크롤 위치를 state로 관리
+  const [scrollY, setScrollY] = useState(0);
+
+  // ⏱️ 스크롤 위치를 1초에 한 번만 갱신 — 빠른 스크롤 이벤트를 throttle로 제한
+  const throttledScrollY = useThrottle(scrollY, 1000);
+
+  // window scroll 이벤트 구독 (raw 이벤트는 매우 빠르게 발생)
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // 🏃‍♂️ 무한 배달 비서 호출!
-  const { 
-    data, 
-    isPending, // 첫 로딩 중인지
-    isError, 
-    fetchNextPage, // 다음 10개 가져와!
-    hasNextPage, // 더 가져올 게 남았어?
-    isFetchingNextPage, // 지금 다음 페이지 가져오는 중이야?
-    refetch 
+  const {
+    data,
+    isPending,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch
   } = useGetLpList(sort);
 
-  // 💡 [핵심] 카메라에 맨 밑 요소가 보이고, 더 가져올 게 있고, 현재 로딩 중이 아니라면? -> 다음 페이지 호출!
+  // 💡 throttle된 스크롤 위치 기준으로 페이지 하단 여부 판단 → 1초마다 최대 1번만 실행
   useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
+    const scrollBottom = throttledScrollY + window.innerHeight;
+    const pageBottom = document.documentElement.scrollHeight - 100;
+    const isNearBottom = scrollBottom >= pageBottom;
+
+    if (isNearBottom && hasNextPage && !isFetchingNextPage) {
+      console.log("[useThrottle] fetchNextPage 호출 — 1초 throttle 적용됨");
       fetchNextPage();
     }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [throttledScrollY, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // 페이지 데이터들을 하나로 쭉 합쳐주기 (플랫하게 펴기!)
   const lpList = data?.pages.flatMap((page) => page.data.data) || [];
@@ -97,8 +112,7 @@ const LPListPage = () => {
         </div>
       )}
 
-      {/* 📸 관찰용 투명 div (여기에 스크롤이 닿으면 다음 페이지 호출) */}
-      <div ref={ref} className="h-10 mt-4"></div>
+      <div className="h-10 mt-4" />
     </div>
   );
 };

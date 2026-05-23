@@ -3,7 +3,10 @@
     "allow": [
       "Bash(pnpm build *)",
       "Bash(npx tsc *)",
-      "Bash(pnpm list *)"
+      "Bash(pnpm list *)",
+      "Bash(git rm *)",
+      "Bash(git stash *)",
+      "Bash(git checkout *)"
     ]
   }
 }
