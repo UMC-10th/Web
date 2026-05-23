@@ -1,4 +1,4 @@
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useEffect } from "react";
 
 // [week8/mission2] 새로 추가한 커스텀 훅
 // fn을 interval(ms) 동안 최대 1번만 실행되도록 제한
@@ -37,6 +37,13 @@ export function useThrottle<T extends unknown[]>(
     },
     [fn, interval]
   );
+
+  // 언마운트 시 pending 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, []);
 
   return throttled;
 }
