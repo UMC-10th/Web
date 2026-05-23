@@ -14,6 +14,8 @@ export const getLps = async ({
   return data;
 };
 
+// [week8/mission1] 새로 추가 - 검색어(search 파라미터) 포함한 LP 조회
+// console.log는 debounce 동작 확인용 (타이핑 중엔 찍히지 않음)
 export const searchLps = async ({
   cursor,
   query,

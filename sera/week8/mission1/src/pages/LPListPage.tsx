@@ -137,15 +137,17 @@ const LPListPage = () => {
   const navigate = useNavigate();
   const [sort, setSort] = useState<"latest" | "oldest">("latest");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); // 실제 input 값 (타이핑 즉시 반영)
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // debounce 적용 (300ms)
+  // [week8/mission1] useDebounce 적용 - 300ms 동안 입력이 없을 때만 debouncedQuery 업데이트
+  // → searchQuery는 타이핑마다 바뀌지만 API 호출은 debouncedQuery 기준으로만 발생
   const debouncedQuery = useDebounce(searchQuery, 300);
 
+  // debouncedQuery가 있을 때만 검색 모드로 전환
   const isSearchMode = debouncedQuery.trim().length > 0;
 
-  // 일반 목록 (검색 아닐 때)
+  // 기존 훅 - 검색어 없을 때 전체 목록 (week6에서 쓰던 것 그대로)
   const {
     data: listData,
     isPending: isListPending,
@@ -156,7 +158,7 @@ const LPListPage = () => {
     isFetchingNextPage: isFetchingNextList,
   } = useGetLpListInfinite(sort);
 
-  // 검색 결과 (검색 중일 때)
+  // [week8/mission1] 새로 추가 - debouncedQuery를 queryKey로 사용해 검색 결과 무한스크롤
   const {
     data: searchData,
     isPending: isSearchPending,
@@ -222,7 +224,7 @@ const LPListPage = () => {
           </button>
         </div>
 
-        {/* 검색창 */}
+        {/* [week8/mission1] 검색창 - searchQuery(즉시) vs debouncedQuery(지연) 분리 */}
         <input
           type="text"
           value={searchQuery}
