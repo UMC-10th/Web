@@ -2,12 +2,12 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useGetMyInfo } from "../hooks/useGetMyInfo";
-import { useState } from "react";
+import { useSidebar } from "../hooks/useSidebar";
 
 export default function HomeLayout() {
   const navigate = useNavigate();
   const { accessToken, logout } = useAuth();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { isOpen, open, close } = useSidebar();
 
   const { data: userInfo } = useGetMyInfo(accessToken);
 
@@ -16,13 +16,18 @@ export default function HomeLayout() {
     navigate("/");
   };
 
+  const handleNavigate = (path: string) => {
+    navigate(path);
+    close();
+  };
+
   return (
     <div className="min-h-screen w-full flex flex-col bg-[#0f1014] text-white relative">
 
       {/* --- 상단 네비게이션 헤더 --- */}
       <nav className="flex justify-between items-center px-4 md:px-8 h-16 w-full bg-[#1a1a1a] border-b border-[#333] z-50 sticky top-0">
         <div className="flex items-center gap-4">
-          <button className="md:hidden text-white" onClick={() => setIsSidebarOpen(true)}>
+          <button className="md:hidden text-white" onClick={open} aria-label="메뉴 열기">
             <svg width="32" height="32" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
               <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M7.95 11.95h32m-32 12h32m-32 12h32"/>
             </svg>
@@ -56,22 +61,35 @@ export default function HomeLayout() {
       </nav>
 
       <div className="flex flex-1 w-full">
-        {isSidebarOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" onClick={() => setIsSidebarOpen(false)} />
-        )}
+        {/* [요구사항 1] 딤 오버레이 — opacity transition으로 부드럽게 등장/소멸 */}
+        <div
+          onClick={close}
+          className={`fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity duration-300 ${
+            isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
+        />
 
-        <aside className={`fixed md:static top-0 left-0 h-full w-64 bg-[#1a1a1a] border-r border-[#333] z-50 transform transition-transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
+        {/* [요구사항 1] 사이드바 — translateX transition으로 슬라이드 인/아웃 */}
+        <aside
+          className={`fixed top-0 left-0 h-full w-64 bg-[#1a1a1a] border-r border-[#333] z-50
+            transition-transform duration-300 ease-in-out
+            md:static md:translate-x-0
+            ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+        >
           <div className="p-4">
-            <h2 className="text-gray-400 font-bold mb-4">메뉴</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-gray-400 font-bold">메뉴</h2>
+              <button onClick={close} className="md:hidden text-gray-400 hover:text-white" aria-label="메뉴 닫기">✕</button>
+            </div>
             <ul className="flex flex-col gap-2">
-              <li onClick={() => { navigate("/lps"); setIsSidebarOpen(false); }} className="cursor-pointer hover:text-[#FF1493]">
+              <li onClick={() => handleNavigate("/lps")} className="cursor-pointer hover:text-[#FF1493] py-1">
                 LP 보관함
               </li>
-              <li onClick={() => { navigate("/search"); setIsSidebarOpen(false); }} className="cursor-pointer hover:text-[#FF1493]">
+              <li onClick={() => handleNavigate("/search")} className="cursor-pointer hover:text-[#FF1493] py-1">
                 LP 검색
               </li>
               {accessToken && (
-                <li onClick={() => { navigate("/mypage"); setIsSidebarOpen(false); }} className="cursor-pointer hover:text-[#FF1493]">
+                <li onClick={() => handleNavigate("/mypage")} className="cursor-pointer hover:text-[#FF1493] py-1">
                   마이페이지
                 </li>
               )}
