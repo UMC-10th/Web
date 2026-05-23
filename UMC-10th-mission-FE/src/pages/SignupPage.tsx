@@ -125,9 +125,9 @@ export default function SignUp() {
                 {...register("email")}
                 type="email"
                 placeholder="이메일 주소"
-                className={`bg-[#1a1a1a] border ${
+                className={`bg-white border ${
                   errors.email ? "border-red-500" : "border-[#333]"
-                } rounded-lg p-4 text-white placeholder-gray-500 focus:border-[#FF1493] outline-none transition-colors`}
+                } rounded-lg p-4 text-black placeholder-gray-400 focus:border-[#FF1493] outline-none transition-colors`}
               />
               {errors.email && (
                 <p className="text-red-500 text-xs ml-1">
@@ -160,9 +160,9 @@ export default function SignUp() {
                   {...register("password")}
                   type={showPw ? "text" : "password"}
                   placeholder="비밀번호 (8자 이상)"
-                  className={`bg-[#1a1a1a] border ${
+                  className={`bg-white border ${
                     errors.password ? "border-red-500" : "border-[#333]"
-                  } rounded-lg w-full p-4 pr-12 text-white placeholder-gray-500 focus:border-[#FF1493] outline-none transition-colors`}
+                  } rounded-lg w-full p-4 pr-12 text-black placeholder-gray-400 focus:border-[#FF1493] outline-none transition-colors`}
                 />
                 <button
                   type="button"
@@ -185,9 +185,9 @@ export default function SignUp() {
                   {...register("passwordCheck")}
                   type={showPwCheck ? "text" : "password"}
                   placeholder="비밀번호 재확인"
-                  className={`bg-[#1a1a1a] border ${
+                  className={`bg-white border ${
                     errors.passwordCheck ? "border-red-500" : "border-[#333]"
-                  } rounded-lg w-full p-4 pr-12 text-white placeholder-gray-500 focus:border-[#FF1493] outline-none transition-colors`}
+                  } rounded-lg w-full p-4 pr-12 text-black placeholder-gray-400 focus:border-[#FF1493] outline-none transition-colors`}
                 />
                 <button
                   type="button"
@@ -235,9 +235,9 @@ export default function SignUp() {
               <input
                 {...register("name")}
                 placeholder="닉네임 입력 (2~10자)"
-                className={`bg-[#1a1a1a] border ${
+                className={`bg-white border ${
                   errors.name ? "border-red-500" : "border-[#333]"
-                } rounded-lg w-full p-4 text-white text-center placeholder-gray-500 focus:border-[#FF1493] outline-none transition-colors`}
+                } rounded-lg w-full p-4 text-black text-center placeholder-gray-400 focus:border-[#FF1493] outline-none transition-colors`}
               />
               {errors.name && (
                 <p className="text-red-500 text-xs text-center">

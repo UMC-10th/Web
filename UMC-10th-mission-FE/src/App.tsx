@@ -21,6 +21,7 @@ import GoogleLoginRedirectPage from "./pages/GoogleLoginRedirectPage";
 import LPListPage from "./pages/LPListPage"; // 👈 목록 페이지 임포트
 import LPDetailPage from "./pages/LPDetailPage"; // 👈 (나중에 만들) 상세 페이지 임포트
 import WritePage from "./pages/WritePage";
+import SearchPage from "./pages/SearchPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -55,8 +56,9 @@ const routes: RouteObject[] = [
           { path: "login", element: <LoginPage /> },
           { path: "signup", element: <SignUpPage /> },
           { path: "v1/auth/google/callback", element: <GoogleLoginRedirectPage /> },
-          { path: "lps", element: <LPListPage /> }, 
+          { path: "lps", element: <LPListPage /> },
           { path: "lps/:lpid", element: <LPDetailPage /> },
+          { path: "search", element: <SearchPage /> },
           {
             element: <PrivateLayout />, 
             children: [

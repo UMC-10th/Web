@@ -65,11 +65,9 @@ const LoginPage = () => {
           <input
             type="email"
             placeholder="이메일을 입력해주세요"
-            className={`bg-[#1a1a1a] border ${
-              touched.email && errors.email
-                ? "border-red-500"
-                : "border-[#333]"
-            } rounded-lg p-4 text-white placeholder-gray-500 focus:border-[#FF1493] outline-none transition-colors`}
+            className={`bg-white border ${
+              touched.email && errors.email ? "border-red-500" : "border-[#333]"
+            } rounded-lg p-4 text-black placeholder-gray-400 focus:border-[#FF1493] outline-none transition-colors`}
             {...getInputProps("email")}
           />
           {touched.email && errors.email && (
@@ -82,11 +80,11 @@ const LoginPage = () => {
           <input
             type="password"
             placeholder="비밀번호를 입력해주세요"
-            className={`bg-[#1a1a1a] border ${
+            className={`bg-white border ${
               touched.password && errors.password
                 ? "border-red-500"
                 : "border-[#333]"
-            } rounded-lg p-4 text-white placeholder-gray-500 focus:border-[#FF1493] outline-none transition-colors`}
+            } rounded-lg p-4 text-black placeholder-gray-400 focus:border-[#FF1493] outline-none transition-colors`}
             {...getInputProps("password")}
           />
           {touched.password && errors.password && (

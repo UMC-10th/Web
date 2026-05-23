@@ -81,7 +81,7 @@ const LPListPage = () => {
                   <p className="text-gray-300 text-sm mb-1">
                     📅 {lp.createdAt ? new Date(lp.createdAt).toLocaleDateString() : "날짜 모름"}
                   </p>
-                  <p className="text-gray-300 text-sm">❤️ 좋아요 {lp.likes || 0}개</p>
+                  <p className="text-gray-300 text-sm">❤️ 좋아요 {lp.likes?.length ?? 0}개</p>
                 </div>
               </div>
               <h3 className="text-white font-bold truncate mt-4 px-1">{lp.title}</h3>
