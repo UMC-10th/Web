@@ -7,7 +7,7 @@ import LpCardSkeletonList from "../components/LpCard/LpCardSkeletonList";
 
 const HomePage = () => {
   const [order, setOrder] = useState<"asc" | "desc">("desc");
-  const [search] = useState("");
+  const [search, setSearch] = useState("");
 
   const handleSortToggle = () => {
     setOrder((prev) => (prev === "desc" ? "asc" : "desc"));
