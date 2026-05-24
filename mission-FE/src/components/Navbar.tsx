@@ -1,12 +1,15 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import useGetMyInfo from "../hooks/queries/useGetMyInfo";
+import { HamburgerButton } from "./HamburgerButton";
 
 interface NavbarProps {
   onMenuClick?: () => void;
+  isMenuOpen: boolean;
+  onMenuClose: () => void;
 }
 
-const Navbar = ({ onMenuClick }: NavbarProps) => {
+const Navbar = ({ onMenuClick, isMenuOpen, onMenuClose }: NavbarProps) => {
   const { accessToken, logout } = useAuth();
   const { data: myInfo } = useGetMyInfo(!!accessToken);
   const navigate = useNavigate();
@@ -20,29 +23,11 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
     <nav className="fixed top-0 z-20 h-16 w-full bg-[#1a1a1a] border-b border-white/10 text-white shadow-md">
       <div className="flex h-full items-center justify-between px-4">
         <div className="flex items-center gap-2">
-          {onMenuClick && (
-            <button
-              onClick={onMenuClick}
-              className="p-2 hover:bg-white/10 rounded-md md:hidden"
-              aria-label="Toggle Sidebar"
-            >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 48 48"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="4"
-                  d="M7.95 11.95h32m-32 12h32m-32 12h32"
-                />
-              </svg>
-            </button>
-          )}
+          <HamburgerButton
+            isOpen={isMenuOpen}
+            onClick={onMenuClick ?? (() => {})}
+            onClose={onMenuClose}
+          />
           <Link to="/" className="text-xl font-bold p-2">
             DOLIGO
           </Link>
