@@ -1,6 +1,4 @@
-import { useDispatch } from 'react-redux';
-import type { AppDispatch } from '../store/store';
-import { increase, decrease, removeItem, calculateTotals } from '../features/cart/cartSlice';
+import useCartStore from '../store/useCartStore';
 import type { CartItem as CartItemType } from '../types/cart';
 
 interface Props {
@@ -8,22 +6,7 @@ interface Props {
 }
 
 export default function CartItem({ item }: Props) {
-  const dispatch = useDispatch<AppDispatch>();
-
-  const handleIncrease = () => {
-    dispatch(increase(item.id));
-    dispatch(calculateTotals());
-  };
-
-  const handleDecrease = () => {
-    dispatch(decrease(item.id));
-    dispatch(calculateTotals());
-  };
-
-  const handleRemove = () => {
-    dispatch(removeItem(item.id));
-    dispatch(calculateTotals());
-  };
+  const { increase, decrease, removeItem } = useCartStore();
 
   return (
     <article className="flex items-center gap-4 bg-white rounded-xl shadow-sm p-4">
@@ -41,21 +24,21 @@ export default function CartItem({ item }: Props) {
       </div>
       <div className="flex flex-col items-center gap-1">
         <button
-          onClick={handleIncrease}
+          onClick={() => increase(item.id)}
           className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 font-bold hover:bg-indigo-200 transition"
         >
           +
         </button>
         <span className="font-semibold text-gray-700">{item.amount}</span>
         <button
-          onClick={handleDecrease}
+          onClick={() => decrease(item.id)}
           className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 font-bold hover:bg-indigo-200 transition"
         >
           -
         </button>
       </div>
       <button
-        onClick={handleRemove}
+        onClick={() => removeItem(item.id)}
         className="ml-2 text-gray-400 hover:text-red-500 transition text-lg"
         aria-label="remove"
       >

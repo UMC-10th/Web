@@ -1,9 +1,8 @@
-import { useSelector } from 'react-redux';
-import type { RootState } from '../store/store';
+import useCartStore from '../store/useCartStore';
 import CartItem from '../components/CartItem';
 
 export default function CartPage() {
-  const cartItems = useSelector((state: RootState) => state.cart.cartItems);
+  const cartItems = useCartStore((state) => state.cartItems);
 
   if (cartItems.length === 0) {
     return (
