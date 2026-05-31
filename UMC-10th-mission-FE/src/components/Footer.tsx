@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState, AppDispatch } from '../store/store';
-import { clearCart } from '../store/cartSlice';
+import { openModal } from '../features/modal/modalSlice';
 
 export default function Footer() {
   const { amount, total } = useSelector((state: RootState) => state.cart);
@@ -20,7 +20,7 @@ export default function Footer() {
       </div>
       <div className="max-w-2xl mx-auto mt-4">
         <button
-          onClick={() => dispatch(clearCart())}
+          onClick={() => dispatch(openModal())}
           className="w-full py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition"
         >
           전체 삭제
