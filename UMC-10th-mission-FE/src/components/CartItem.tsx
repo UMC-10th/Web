@@ -1,6 +1,6 @@
 import { useDispatch } from 'react-redux';
 import type { AppDispatch } from '../store/store';
-import { increase, decrease, removeItem, calculateTotals } from '../store/cartSlice';
+import { increase, decrease, removeItem, calculateTotals } from '../features/cart/cartSlice';
 import type { CartItem as CartItemType } from '../types/cart';
 
 interface Props {
