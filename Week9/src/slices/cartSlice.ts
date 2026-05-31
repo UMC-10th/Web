@@ -8,55 +8,69 @@ export interface CartState {
   total: number;
 }
 
-const initialState: CartState = {
-  cartItems: cartItems,
-  amount: 0,
-  total: 0,
+const getTotals = (items: CartItems) => {
+  let amount = 0;
+  let total = 0;
+
+  items.forEach((item) => {
+    amount += item.amount;
+    total += item.amount * Number(item.price);
+  });
+
+  return { amount, total };
 };
 
-// cartSlice 생성
-//
+const initialTotals = getTotals(cartItems);
+
+const initialState: CartState = {
+  cartItems,
+  amount: initialTotals.amount,
+  total: initialTotals.total,
+};
+
+const updateTotals = (state: CartState) => {
+  const totals = getTotals(state.cartItems);
+  state.amount = totals.amount;
+  state.total = totals.total;
+};
+
 const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
     increase: (state, action: PayloadAction<{ id: string }>) => {
-      const itemId = action.payload.id;
-      // 이 아이디를 통해서, 전체 음반 중 내가 클릭한 음반을 찾기
-      const item = state.cartItems.find((cartItem) => cartItem.id === itemId);
+      const item = state.cartItems.find(
+        (cartItem) => cartItem.id === action.payload.id,
+      );
 
       if (item) {
         item.amount += 1;
+        updateTotals(state);
       }
     },
     decrease: (state, action: PayloadAction<{ id: string }>) => {
-      const itemId = action.payload.id;
-      const item = state.cartItems.find((cartItem) => cartItem.id === itemId);
+      const item = state.cartItems.find(
+        (cartItem) => cartItem.id === action.payload.id,
+      );
 
       if (item) {
         item.amount -= 1;
+        updateTotals(state);
       }
     },
     remove: (state, action: PayloadAction<{ id: string }>) => {
-      const itemId = action.payload.id;
       state.cartItems = state.cartItems.filter(
-        (cartItem) => cartItem.id !== itemId,
+        (cartItem) => cartItem.id !== action.payload.id,
       );
+      updateTotals(state);
     },
     clearCart: (state) => {
       state.cartItems = [];
+      state.amount = 0;
+      state.total = 0;
     },
     calculateTotals: (state) => {
-      let amount = 0;
-      let total = 0;
-
-      state.cartItems.forEach((item) => {
-        amount += item.amount;
-        total += item.amount * Number(item.price);
-      });
-
-      state.amount = amount;
-      state.total = total;
+      updateTotals(state);
     },
   },
 });
@@ -64,7 +78,4 @@ const cartSlice = createSlice({
 export const { increase, decrease, remove, clearCart, calculateTotals } =
   cartSlice.actions;
 
-//duck pattern reducer는 export default로 내보내야함.
-const cartReducer = cartSlice.reducer;
-
-export default cartReducer;
+export default cartSlice.reducer;
