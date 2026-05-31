@@ -1,8 +1,12 @@
 import { FaShoppingCart } from "react-icons/fa";
-import { useSelector } from "../hooks/useCustomRedux";
+import { useCartActions, useCartInfo } from "../hooks/useCartStore";
+import { useEffect } from "react";
 
 const Navbar = () => {
-  const { total } = useSelector((state) => state.cart);
+  const { amount, cartItems } = useCartInfo();
+  const { calculateTotal } = useCartActions();
+
+  // totals are kept in store by actions; no initial calculateTotal here to avoid loops
 
   return (
     <div className="flex justify-between items-center p-4 bg-gray-800 text-white">
@@ -16,7 +20,7 @@ const Navbar = () => {
       </h1>
       <div className="flex items-center space-x-2">
         <FaShoppingCart className="text-2xl" />
-        <span className="text-xl font-medium">{total}</span>
+        <span className="text-xl font-medium">{amount}</span>
       </div>
     </div>
   );
