@@ -1,10 +1,9 @@
-import { useSelector, useDispatch } from 'react-redux';
-import type { RootState, AppDispatch } from '../store/store';
-import { openModal } from '../features/modal/modalSlice';
+import useCartStore from '../store/useCartStore';
+import useModalStore from '../store/useModalStore';
 
 export default function Footer() {
-  const { amount, total } = useSelector((state: RootState) => state.cart);
-  const dispatch = useDispatch<AppDispatch>();
+  const { amount, total } = useCartStore();
+  const openModal = useModalStore((state) => state.openModal);
 
   return (
     <footer className="bg-gray-900 text-white px-6 py-5">
@@ -20,7 +19,7 @@ export default function Footer() {
       </div>
       <div className="max-w-2xl mx-auto mt-4">
         <button
-          onClick={() => dispatch(openModal())}
+          onClick={openModal}
           className="w-full py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition"
         >
           전체 삭제
