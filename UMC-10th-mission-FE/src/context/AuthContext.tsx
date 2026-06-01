@@ -13,6 +13,7 @@ interface AuthContextType {
   accessToken: string | null;
   login: (signInData: ReqSignInDto) => Promise<void>;
   logout: () => Promise<void>;
+  clearAuth: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -56,8 +57,14 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     }
   };
 
+  const clearAuth = () => {
+    removeAccessToken();
+    removeRefreshToken();
+    setAccessToken(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ accessToken, login, logout }}>
+    <AuthContext.Provider value={{ accessToken, login, logout, clearAuth }}>
       {children}
     </AuthContext.Provider>
   );

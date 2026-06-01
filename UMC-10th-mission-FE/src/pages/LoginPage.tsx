@@ -1,16 +1,15 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 import useForm from "../hooks/useForm";
 import { validateSignin } from "../utils/validate";
 import { ChevronLeft } from "lucide-react";
-import { useState } from "react";
+import type { AxiosError } from "axios";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
-  const [serverError, setServerError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   const { values, errors, touched, getInputProps } = useForm({
     init_val: { email: "", password: "" },
@@ -18,29 +17,25 @@ const LoginPage = () => {
   });
 
   const isFormValid =
-    !errors.email &&
-    !errors.password &&
-    values.email !== "" &&
-    values.password !== "";
+    !errors.email && !errors.password && !!values.email && !!values.password;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isFormValid || isLoading) return;
-
-    setIsLoading(true);
-    setServerError("");
-
-    try {
-      await login(values);
-      const from = location.state?.from || "/mypage";
+  const { mutate: handleLogin, isPending, error } = useMutation({
+    mutationFn: login,
+    onSuccess: () => {
+      const from = (location.state as { from?: string })?.from ?? "/";
       navigate(from, { replace: true });
-    } catch (err: any) {
-      const msg =
-        err.response?.data?.message || "로그인 중 오류가 발생했습니다.";
-      setServerError(msg);
-    } finally {
-      setIsLoading(false);
-    }
+    },
+  });
+
+  const serverError = error
+    ? ((error as AxiosError<{ message: string }>).response?.data?.message ??
+      "로그인 중 오류가 발생했습니다.")
+    : null;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isFormValid || isPending) return;
+    handleLogin(values);
   };
 
   return (
@@ -66,9 +61,7 @@ const LoginPage = () => {
             type="email"
             placeholder="이메일을 입력해주세요"
             className={`bg-[#1a1a1a] border ${
-              touched.email && errors.email
-                ? "border-red-500"
-                : "border-[#333]"
+              touched.email && errors.email ? "border-red-500" : "border-[#333]"
             } rounded-lg p-4 text-white placeholder-gray-500 focus:border-[#FF1493] outline-none transition-colors`}
             {...getInputProps("email")}
           />
@@ -90,9 +83,7 @@ const LoginPage = () => {
             {...getInputProps("password")}
           />
           {touched.password && errors.password && (
-            <span className="text-red-500 text-xs ml-1">
-              {errors.password}
-            </span>
+            <span className="text-red-500 text-xs ml-1">{errors.password}</span>
           )}
         </div>
 
@@ -103,11 +94,10 @@ const LoginPage = () => {
 
         <button
           type="submit"
-          disabled={!isFormValid || isLoading}
-          className="mt-2 h-[52px] rounded-lg font-bold text-white transition-colors disabled:bg-[#333] disabled:cursor-not-allowed"
-          style={{ backgroundColor: isFormValid && !isLoading ? "#FF1493" : undefined }}
+          disabled={!isFormValid || isPending}
+          className="mt-2 h-[52px] rounded-lg font-bold text-white transition-colors disabled:bg-[#333] disabled:cursor-not-allowed bg-[#FF1493] disabled:bg-[#333]"
         >
-          {isLoading ? "로그인 중..." : "로그인"}
+          {isPending ? "로그인 중..." : "로그인"}
         </button>
 
         <p className="text-center text-gray-500 text-sm">

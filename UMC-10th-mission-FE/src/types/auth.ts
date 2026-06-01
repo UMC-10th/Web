@@ -39,3 +39,9 @@ export type ResMyInfoDto = CommonRes<{
   createdAt: Date;
   updatedAt: Date;
 }>;
+
+export type ReqUpdateProfileDto = {
+  name: string;
+  bio: string;       // 빈 문자열로 보내면 서버에서 bio 초기화
+  avatar?: File;     // 새 파일을 선택했을 때만 포함
+};

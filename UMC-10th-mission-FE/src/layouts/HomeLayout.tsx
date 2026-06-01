@@ -1,36 +1,57 @@
 // src/layouts/HomeLayout.tsx
-import { Outlet, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { useGetMyInfo } from "../hooks/useGetMyInfo"; // 👈 비서 훅 꼭 임포트!
 import { useState } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { useAuth } from "../context/AuthContext";
+import { useGetMyInfo } from "../hooks/useGetMyInfo";
+import { postLogout, deleteMyAccount } from "../apis/auth";
+import LpWriteModal from "../components/LpWriteModal";
+import ConfirmModal from "../components/ConfirmModal";
 
 export default function HomeLayout() {
   const navigate = useNavigate();
-  const { accessToken, logout } = useAuth();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  // 👤 [추가] 로그인 상태일 때만 내 정보를 가져오는 비서 호출!
+  const { accessToken, clearAuth } = useAuth();
   const { data: userInfo } = useGetMyInfo(accessToken);
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/");
-  };
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+
+  // 로그아웃: API 호출 후 클라이언트 상태 초기화
+  const { mutate: handleLogout, isPending: isLoggingOut } = useMutation({
+    mutationFn: postLogout,
+    onSettled: () => {
+      // 성공/실패 무관하게 항상 토큰 삭제 후 홈으로
+      clearAuth();
+      navigate("/");
+    },
+  });
+
+  // 회원 탈퇴: API 호출 성공 시만 상태 초기화
+  const { mutate: handleWithdraw, isPending: isWithdrawing } = useMutation({
+    mutationFn: deleteMyAccount,
+    onSuccess: () => {
+      clearAuth();
+      navigate("/login");
+    },
+  });
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-[#0f1014] text-white relative">
-      
+
       {/* --- 상단 네비게이션 헤더 --- */}
       <nav className="flex justify-between items-center px-4 md:px-8 h-16 w-full bg-[#1a1a1a] border-b border-[#333] z-50 sticky top-0">
         <div className="flex items-center gap-4">
-          {/* 모바일 햄버거 버튼 (SVG) */}
           <button className="md:hidden text-white" onClick={() => setIsSidebarOpen(true)}>
             <svg width="32" height="32" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
               <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M7.95 11.95h32m-32 12h32m-32 12h32"/>
             </svg>
           </button>
-          
-          <h1 onClick={() => navigate("/")} className="text-2xl font-bold text-[#FF1493] cursor-pointer select-none">
+
+          <h1
+            onClick={() => navigate("/")}
+            className="text-2xl font-bold text-[#FF1493] cursor-pointer select-none"
+          >
             돌려돌려LP판
           </h1>
         </div>
@@ -38,7 +59,6 @@ export default function HomeLayout() {
         <div className="hidden md:flex gap-4 items-center">
           {accessToken ? (
             <>
-              {/* 🌟 [수정] "회원님" 대신 진짜 닉네임 연동! */}
               <span className="text-gray-300 mr-2">
                 <span className="text-[#FF1493] font-bold">
                   {userInfo?.data?.name || "회원"}
@@ -46,7 +66,13 @@ export default function HomeLayout() {
               </span>
               <button onClick={() => navigate("/lps")} className="hover:text-[#FF1493]">LP목록</button>
               <button onClick={() => navigate("/mypage")} className="hover:text-[#FF1493]">마이페이지</button>
-              <button onClick={handleLogout} className="rounded-md px-4 py-2 bg-[#FF1493] text-white font-bold hover:opacity-90 transition-opacity">로그아웃</button>
+              <button
+                onClick={() => handleLogout()}
+                disabled={isLoggingOut}
+                className="rounded-md px-4 py-2 bg-[#FF1493] text-white font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
+              </button>
             </>
           ) : (
             <>
@@ -58,17 +84,50 @@ export default function HomeLayout() {
       </nav>
 
       <div className="flex flex-1 w-full">
-        {/* --- 사이드바 (기존 로직 그대로 유지!) --- */}
+        {/* 사이드바 백드롭 (모바일) */}
         {isSidebarOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" onClick={() => setIsSidebarOpen(false)} />
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
         )}
-        <aside className={`fixed md:static top-0 left-0 h-full w-64 bg-[#1a1a1a] border-r border-[#333] z-50 transform transition-transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
-          <div className="p-4">
+
+        {/* --- 사이드바 --- */}
+        <aside
+          className={`fixed md:static top-0 left-0 h-full w-64 bg-[#1a1a1a] border-r border-[#333] z-50 transform transition-transform ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } md:translate-x-0 flex flex-col`}
+        >
+          <div className="p-4 flex flex-col flex-1">
             <h2 className="text-gray-400 font-bold mb-4">메뉴</h2>
             <ul className="flex flex-col gap-2">
-              <li onClick={() => { navigate("/lps"); setIsSidebarOpen(false); }} className="cursor-pointer hover:text-[#FF1493]">LP 보관함</li>
-              {accessToken && <li onClick={() => { navigate("/mypage"); setIsSidebarOpen(false); }} className="cursor-pointer hover:text-[#FF1493]">마이페이지</li>}
+              <li
+                onClick={() => { navigate("/lps"); setIsSidebarOpen(false); }}
+                className="cursor-pointer hover:text-[#FF1493]"
+              >
+                LP 보관함
+              </li>
+              {accessToken && (
+                <li
+                  onClick={() => { navigate("/mypage"); setIsSidebarOpen(false); }}
+                  className="cursor-pointer hover:text-[#FF1493]"
+                >
+                  마이페이지
+                </li>
+              )}
             </ul>
+
+            {/* 하단: 로그인 상태일 때만 탈퇴 버튼 */}
+            {accessToken && (
+              <div className="mt-auto pt-4 border-t border-[#333]">
+                <button
+                  onClick={() => { setIsWithdrawModalOpen(true); setIsSidebarOpen(false); }}
+                  className="w-full text-left text-sm text-gray-500 hover:text-red-400 transition-colors py-2"
+                >
+                  탈퇴하기
+                </button>
+              </div>
+            )}
           </div>
         </aside>
 
@@ -79,13 +138,27 @@ export default function HomeLayout() {
       </div>
 
       {/* --- 우측 하단 플로팅 버튼 (+) --- */}
-      <button 
-        onClick={() => navigate("/write")} 
+      <button
+        onClick={() => setIsWriteModalOpen(true)}
         className="fixed bottom-8 right-8 w-14 h-14 bg-[#FF1493] rounded-full flex justify-center items-center text-white text-3xl shadow-lg hover:scale-110 transition-transform z-50"
       >
         +
       </button>
 
+      {isWriteModalOpen && (
+        <LpWriteModal onClose={() => setIsWriteModalOpen(false)} />
+      )}
+
+      {isWithdrawModalOpen && (
+        <ConfirmModal
+          message="정말로 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+          confirmLabel="탈퇴하기"
+          cancelLabel="취소"
+          isPending={isWithdrawing}
+          onConfirm={() => handleWithdraw()}
+          onCancel={() => setIsWithdrawModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
