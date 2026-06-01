@@ -23,10 +23,12 @@ const SearchPage = () => {
     isError,
     refetch,
     fetchNextPage,
+    isFetchingNextPage,
   } = useGetInfiniteLpList(50, trimmedQuery, order, trimmedQuery.length > 0);
 
   const { ref, inView } = useInView({
     threshold: 0,
+    rootMargin: "200px",
   });
 
   useEffect(() => {
@@ -36,7 +38,7 @@ const SearchPage = () => {
 
   useEffect(() => {
     if (inView) {
-      !isFetching && hasNextPage && fetchNextPage();
+      !isFetchingNextPage && hasNextPage && fetchNextPage();
     }
   }, [inView, isFetching, hasNextPage, fetchNextPage]);
 
