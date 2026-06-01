@@ -1,10 +1,8 @@
 import CartItemCard from './CartItemCard';
-import { openModal } from '../store/modalSlice';
-import { useAppDispatch, useAppSelector } from '../hooks/redux';
+import { useCartStore } from '../store/useCartStore';
 
 const CartContainer = () => {
-  const dispatch = useAppDispatch();
-  const { amount, cartItems, total } = useAppSelector((state) => state.cart);
+  const { amount, cartItems, openModal, total } = useCartStore();
 
   if (amount < 1) {
     return (
@@ -35,7 +33,7 @@ const CartContainer = () => {
         </div>
         <button
           type="button"
-          onClick={() => dispatch(openModal())}
+          onClick={openModal}
           className="mt-6 w-full rounded-md border border-red-400 py-3 font-semibold text-red-500 hover:bg-red-500 hover:text-white"
         >
           장바구니 전체 삭제

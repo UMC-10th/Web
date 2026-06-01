@@ -2,17 +2,16 @@ import { useEffect } from 'react';
 import CartContainer from '../components/CartContainer';
 import Modal from '../components/Modal';
 import PlaylistNavbar from '../components/PlaylistNavbar';
-import { calculateTotals } from '../store/cartSlice';
-import { useAppDispatch, useAppSelector } from '../hooks/redux';
+import { useCartStore } from '../store/useCartStore';
 
 const CartPage = () => {
-  const dispatch = useAppDispatch();
-  const cartItems = useAppSelector((state) => state.cart.cartItems);
-  const isModalOpen = useAppSelector((state) => state.modal.isOpen);
+  const cartItems = useCartStore((state) => state.cartItems);
+  const calculateTotals = useCartStore((state) => state.calculateTotals);
+  const isModalOpen = useCartStore((state) => state.isModalOpen);
 
   useEffect(() => {
-    dispatch(calculateTotals());
-  }, [cartItems, dispatch]);
+    calculateTotals();
+  }, [cartItems, calculateTotals]);
 
   return (
     <div className="min-h-dvh bg-slate-50">

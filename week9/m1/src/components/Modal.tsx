@@ -1,13 +1,10 @@
-import { clearCart } from '../store/cartSlice';
-import { closeModal } from '../store/modalSlice';
-import { useAppDispatch } from '../hooks/redux';
+import { useCartStore } from '../store/useCartStore';
 
 const Modal = () => {
-  const dispatch = useAppDispatch();
+  const { clearCart, closeModal } = useCartStore();
 
   const handleConfirm = () => {
-    dispatch(clearCart());
-    dispatch(closeModal());
+    clearCart();
   };
 
   return (
@@ -21,7 +18,7 @@ const Modal = () => {
         <div className="mt-6 flex gap-3">
           <button
             type="button"
-            onClick={() => dispatch(closeModal())}
+            onClick={closeModal}
             className="flex-1 rounded-md border border-slate-300 py-2 font-semibold text-slate-600 hover:bg-slate-100"
           >
             취소

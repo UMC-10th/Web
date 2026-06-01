@@ -1,6 +1,5 @@
 import { Minus, Plus } from 'lucide-react';
-import { decrease, increase, removeItem } from '../store/cartSlice';
-import { useAppDispatch } from '../hooks/redux';
+import { useCartStore } from '../store/useCartStore';
 import type { CartItem } from '../types/cart';
 
 interface CartItemCardProps {
@@ -8,7 +7,7 @@ interface CartItemCardProps {
 }
 
 const CartItemCard = ({ item }: CartItemCardProps) => {
-  const dispatch = useAppDispatch();
+  const { decrease, increase, removeItem } = useCartStore();
 
   return (
     <li className="flex items-center gap-4 border-b border-slate-200 py-4">
@@ -22,7 +21,7 @@ const CartItemCard = ({ item }: CartItemCardProps) => {
         </p>
         <button
           type="button"
-          onClick={() => dispatch(removeItem(item.id))}
+          onClick={() => removeItem(item.id)}
           className="mt-1 text-xs text-slate-400 hover:text-red-500"
         >
           삭제
@@ -32,7 +31,7 @@ const CartItemCard = ({ item }: CartItemCardProps) => {
       <div className="flex items-center gap-2">
         <button
           type="button"
-          onClick={() => dispatch(decrease(item.id))}
+          onClick={() => decrease(item.id)}
           className="flex h-8 w-8 items-center justify-center rounded-full border border-[#0ECFD3] text-[#0BAEB3]"
           aria-label="수량 감소"
         >
@@ -41,7 +40,7 @@ const CartItemCard = ({ item }: CartItemCardProps) => {
         <span className="w-6 text-center font-semibold">{item.amount}</span>
         <button
           type="button"
-          onClick={() => dispatch(increase(item.id))}
+          onClick={() => increase(item.id)}
           className="flex h-8 w-8 items-center justify-center rounded-full border border-[#0ECFD3] text-[#0BAEB3]"
           aria-label="수량 증가"
         >

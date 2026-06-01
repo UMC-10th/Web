@@ -1,8 +1,8 @@
 import { ShoppingCart } from 'lucide-react';
-import { useAppSelector } from '../hooks/redux';
+import { useCartStore } from '../store/useCartStore';
 
 const PlaylistNavbar = () => {
-  const amount = useAppSelector((state) => state.cart.amount);
+  const amount = useCartStore((state) => state.amount);
 
   return (
     <nav className="sticky top-0 z-20 bg-[#0ECFD3] text-[#063B3D] shadow-sm">
