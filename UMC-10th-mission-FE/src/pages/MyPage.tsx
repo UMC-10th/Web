@@ -8,6 +8,7 @@ import EditProfileModal from "../components/EditProfileModal";
 const MyPage = () => {
   const navigate = useNavigate();
   const { accessToken, logout } = useAuth();
+
   const { data: response, isPending } = useGetMyInfo(accessToken);
   const userInfo = response?.data ?? null;
 
@@ -34,7 +35,6 @@ const MyPage = () => {
 
       {userInfo ? (
         <div className="max-w-md border border-[#FF1493] rounded-xl p-6 bg-[#111] flex flex-col gap-4">
-          {/* 아바타 + 이름/이메일 + 설정 버튼 */}
           <div className="flex items-center gap-4">
             {userInfo.avatar ? (
               <img
@@ -55,8 +55,8 @@ const MyPage = () => {
               <p className="text-gray-400 text-sm truncate">{userInfo.email}</p>
             </div>
 
-            {/* 설정 버튼 */}
             <button
+              type="button"
               onClick={() => setIsEditModalOpen(true)}
               aria-label="프로필 설정"
               className="text-gray-400 hover:text-[#FF1493] transition-colors p-1 shrink-0"
@@ -65,7 +65,6 @@ const MyPage = () => {
             </button>
           </div>
 
-          {/* Bio */}
           {userInfo.bio ? (
             <p className="text-gray-300 text-sm border-t border-[#333] pt-4">
               {userInfo.bio}
@@ -77,6 +76,7 @@ const MyPage = () => {
           )}
 
           <button
+            type="button"
             onClick={handleLogout}
             className="mt-4 w-full h-[48px] rounded-lg bg-[#FF1493] text-white font-bold hover:opacity-90 transition-opacity"
           >
@@ -89,6 +89,7 @@ const MyPage = () => {
             사용자 정보를 불러올 수 없습니다.
           </p>
           <button
+            type="button"
             onClick={() => navigate("/login")}
             className="px-6 py-3 bg-[#FF1493] text-white rounded-lg font-bold hover:opacity-90 transition-opacity"
           >
@@ -97,7 +98,6 @@ const MyPage = () => {
         </div>
       )}
 
-      {/* 프로필 수정 모달 */}
       {isEditModalOpen && userInfo && (
         <EditProfileModal
           userInfo={userInfo}

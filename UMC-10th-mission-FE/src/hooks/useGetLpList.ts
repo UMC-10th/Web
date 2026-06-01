@@ -8,7 +8,7 @@ export const useGetLpList = (sort: "latest" | "oldest" = "latest") => {
     initialPageParam: 0, // 첫 시작 커서는 0번
     getNextPageParam: (lastPage) => {
       // 💡 서버에서 "다음 데이터 있어!(hasNext)"라고 하면 다음 커서 번호를 주고, 없으면 undefined!
-      return lastPage.data.hasNext ? lastPage.data.cursor : undefined;
+      return lastPage.data.hasNext ? (lastPage.data.cursor ?? undefined) : undefined;
     },
     staleTime: 1000 * 60,
     gcTime: 1000 * 60 * 5,

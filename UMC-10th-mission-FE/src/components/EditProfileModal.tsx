@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type ChangeEvent } from "react";
+import { useState, useEffect, type ChangeEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { patchMyProfile } from "../apis/auth";
@@ -19,8 +19,6 @@ const EditProfileModal = ({ userInfo, onClose }: EditProfileModalProps) => {
     userInfo.avatar ?? null
   );
 
-  const backdropRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const handler = (e: globalThis.KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -28,10 +26,6 @@ const EditProfileModal = ({ userInfo, onClose }: EditProfileModalProps) => {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
-
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === backdropRef.current) onClose();
-  };
 
   const handleAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -44,9 +38,40 @@ const EditProfileModal = ({ userInfo, onClose }: EditProfileModalProps) => {
 
   const { mutate: updateProfile, isPending } = useMutation({
     mutationFn: patchMyProfile,
+    onMutate: async (variables) => {
+      // 진행 중인 내 정보 쿼리 취소 (race condition 방지)
+      await queryClient.cancelQueries({ queryKey: ["user", "me"] });
+
+      // 롤백용 스냅샷 저장
+      const previousData = queryClient.getQueryData<ResMyInfoDto>(["user", "me"]);
+
+      // 서버 응답 전에 UI 즉시 반영
+      queryClient.setQueryData<ResMyInfoDto>(["user", "me"], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            name: variables.name,
+            bio: variables.bio || null,
+          },
+        };
+      });
+
+      return { previousData };
+    },
+    onError: (_error, _variables, context) => {
+      // 요청 실패 시 스냅샷으로 롤백
+      if (context?.previousData) {
+        queryClient.setQueryData(["user", "me"], context.previousData);
+      }
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user", "me"] });
       onClose();
+    },
+    onSettled: () => {
+      // 성공·실패 무관하게 서버 최신 데이터로 동기화
+      queryClient.invalidateQueries({ queryKey: ["user", "me"] });
     },
   });
 
@@ -61,11 +86,13 @@ const EditProfileModal = ({ userInfo, onClose }: EditProfileModalProps) => {
 
   return (
     <div
-      ref={backdropRef}
-      onClick={handleBackdropClick}
       className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center"
+      onClick={onClose}
     >
-      <div className="bg-[#1a1a1a] rounded-2xl w-full max-w-md mx-4 p-6 flex flex-col gap-5">
+      <div
+        className="bg-[#1a1a1a] rounded-2xl w-full max-w-md mx-4 p-6 flex flex-col gap-5"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex justify-between items-center">
           <h2 className="text-white text-xl font-bold">프로필 수정</h2>
@@ -148,12 +175,14 @@ const EditProfileModal = ({ userInfo, onClose }: EditProfileModalProps) => {
         {/* Buttons */}
         <div className="flex gap-3 mt-1">
           <button
+            type="button"
             onClick={onClose}
             className="flex-1 py-2.5 rounded-xl bg-[#2a2a2a] text-gray-300 font-bold hover:bg-[#333] transition-colors"
           >
             취소
           </button>
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={isPending || !name.trim()}
             className="flex-1 py-2.5 rounded-xl bg-[#FF1493] text-white font-bold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
