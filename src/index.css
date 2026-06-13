@@ -280,6 +280,21 @@ body {
   opacity: 0.9;
 }
 
+.modal__detail-btn {
+  padding: 11px 18px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal__detail-btn:hover {
+  opacity: 0.9;
+}
+
 .modal__close-btn {
   padding: 11px 22px;
   border-radius: 8px;

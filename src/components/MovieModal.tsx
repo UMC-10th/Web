@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import type { Movie } from "../types/movie";
 import { POSTER_BASE_URL_LARGE } from "../apis/tmdb";
 
@@ -8,6 +9,8 @@ interface MovieModalProps {
 }
 
 function MovieModal({ movie, onClose }: MovieModalProps) {
+  const navigate = useNavigate();
+
   // ESC 키로 닫기 + 모달이 열린 동안 배경 스크롤 잠금
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -83,6 +86,14 @@ function MovieModal({ movie, onClose }: MovieModalProps) {
             >
               IMDb에서 검색하기
             </a>
+            {/* /movies/:movieId 로 라우팅 이동 (라우트가 바뀌며 모달은 자동 언마운트) */}
+            <button
+              type="button"
+              className="modal__detail-btn"
+              onClick={() => navigate(`/movies/${movie.id}`)}
+            >
+              상세 페이지로 이동
+            </button>
             <button
               type="button"
               className="modal__close-btn"
