@@ -1,0 +1,12 @@
+# 모든 텍스트 파일의 줄바꿈을 저장소·작업트리 모두 LF로 통일한다.
+# (Windows의 core.autocrlf 설정과 무관하게 CRLF 변환 경고가 더 이상 뜨지 않음)
+* text=auto eol=lf
+
+# 바이너리로 다뤄 변환하지 않을 파일들
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
