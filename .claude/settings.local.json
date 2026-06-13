@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm build *)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(npm run *)",
+      "Read(//tmp/**)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173/)",
+      "Bash(kill %1)",
+      "Bash(wait)",
+      "Bash(curl -s \"https://api.themoviedb.org/3/search/movie?api_key=ca324ae23606391798bdf45057a9bf4f&query=inception&language=ko-KR&include_adult=false\")"
+    ]
+  }
+}
